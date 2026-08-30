@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0B0B;
+    --text: #F5F5F5;
+    --text-muted: rgba(245,245,245,0.65);
+    --accent: #F5F5F5;
+    --scrim-top: rgba(0,0,0,0.15);
+    --scrim-bottom: rgba(0,0,0,0.92);
+    --font-display: 'Inter', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    overflow-x:hidden;
+  }
+  a{ color:inherit; }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ---------- INTRO MARK ---------- */
+  .intro-mark{
+    position: fixed; top: 28px; left: 32px; z-index: 40;
+    font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.05em;
+    color: var(--text); mix-blend-mode: difference;
+    display:flex; align-items:center; gap:8px;
+  }
+  .intro-mark .sq{ width:7px; height:7px; background: var(--accent); }
+
+  /* ---------- CONTACT BUTTON ---------- */
+  .contact-btn{
+    position: fixed; top: 26px; right: 32px; z-index: 40;
+    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em;
+    color: var(--text); background: transparent;
+    border: 1px solid rgba(245,245,245,0.4);
+    padding: 8px 16px; cursor: pointer;
+    text-decoration: none; display:inline-block;
+    transition: all .2s ease;
+  }
+  .contact-btn:hover{ background: rgba(245,245,245,0.1); border-color: rgba(245,245,245,0.8); }
+
+  /* ---------- SCROLL PROGRESS RAIL ---------- */
+  .rail{
+    position: fixed; right: 26px; top:50%; transform: translateY(-50%);
+    z-index: 40; display:flex; flex-direction:column; gap: 14px; align-items:center;
+  }
+  .rail button{
+    width: 8px; height: 8px; border-radius:50%;
+    border: 1px solid rgba(245,245,245,0.45);
+    background: transparent; cursor:pointer; padding:0;
+    transition: all .25s ease;
+  }
+  .rail button:hover{ border-color: rgba(245,245,245,0.8); }
+  .rail button.active{
+    background: var(--accent); border-color: var(--accent);
+    width: 9px; height: 26px; border-radius: 5px;
+  }
+  .rail button.special{
+    width: 9px; height: 9px; border-radius: 2px;
+    transform: rotate(45deg);
+  }
+  .rail button.special.active{
+    width: 11px; height: 11px; border-radius: 2px;
+    background: var(--accent); border-color: var(--accent);
+    transform: rotate(45deg);
+  }
+  .rail .rail-divider{
+    width: 12px; height: 1px; background: rgba(245,245,245,0.25);
+    margin: 4px 0;
+  }
+
+  /* ---------- SCROLL SNAP CONTAINER ---------- */
+  .scroller{
+    height: 100vh;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+  }
+  .scroller::-webkit-scrollbar{ display:none; }
+
+  section.project{
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    scroll-snap-align: start;
+    display:flex; align-items:flex-end;
+    overflow:hidden;
+  }
+
+  .bg-photo{
+    position:absolute; inset:0;
+    background-size: cover; background-position: center;
+    transition: opacity .5s ease;
+  }
+  .bg-photo video{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit: cover;
+  }
+  .video-badge{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    font-family: var(--font-mono); font-size: 11px; color: rgba(245,245,245,0.6);
+    letter-spacing: 0.04em; pointer-events:none;
+  }
+  .video-badge .play-icon{
+    width: 46px; height: 46px; border-radius: 50%;
+    border: 1px solid rgba(245,245,245,0.4);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .video-badge .play-icon::before{
+    content:""; width:0; height:0;
+    border-top: 7px solid transparent; border-bottom: 7px solid transparent;
+    border-left: 11px solid rgba(245,245,245,0.75);
+    margin-left: 3px;
+  }
+  .filmstrip button{ position: relative; }
+  .filmstrip .thumb-play{
+    position:absolute; bottom:4px; right:4px;
+    width:16px; height:16px; border-radius:50%;
+    background: rgba(0,0,0,0.55);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .filmstrip .thumb-play::before{
+    content:""; width:0; height:0;
+    border-top: 4px solid transparent; border-bottom: 4px solid transparent;
+    border-left: 6px solid #fff; margin-left: 2px;
+  }
+  .bg-scrim{
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 35%, transparent 55%, var(--scrim-bottom) 100%);
+    pointer-events:none;
+  }
+
+  .placeholder-note{
+    position:absolute; top:24px; right:70px;
+    font-family: var(--font-mono); font-size: 10.5px;
+    color: rgba(245,241,234,0.55);
+    border: 1px dashed rgba(245,241,234,0.3);
+    padding: 5px 9px; border-radius: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .project-content{
+    position:relative; z-index: 5;
+    width: 100%;
+    padding: 0 64px 68px;
+    display:flex; align-items:flex-end; justify-content:space-between;
+    gap: 40px;
+  }
+  .project-text{ max-width: 620px; }
+  .project-title{
+    font-family: var(--font-display);
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    font-size: clamp(28px, 3.6vw, 44px);
+    line-height: 1.08;
+    margin-bottom: 16px;
+  }
+  .project-desc{
+    font-size: 15.5px; line-height:1.6; color: var(--text-muted);
+    max-width: 520px; margin-bottom: 18px;
+  }
+  .project-meta{
+    font-family: var(--font-mono); font-size: 11.5px;
+    color: var(--text-muted); letter-spacing: 0.03em;
+  }
+
+  /* ---------- FILMSTRIP ---------- */
+  .filmstrip{ display:flex; gap: 10px; flex-shrink: 0; }
+  .filmstrip button{
+    width: 76px; height: 54px;
+    border-radius: 0;
+    border: 2px solid rgba(245,245,245,0.25);
+    background-size: cover; background-position:center;
+    cursor:pointer; padding:0;
+    opacity: 0.65;
+    transition: all .2s ease;
+  }
+  .filmstrip button:hover{ opacity: 0.9; }
+  .filmstrip button.active{ border-color: var(--accent); opacity: 1; }
+
+  /* ---------- SCROLL CUE (first section only) ---------- */
+  .scroll-cue{
+    position:absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+    z-index:5; font-family: var(--font-mono); font-size: 11px;
+    color: var(--text-muted); display:flex; flex-direction:column; align-items:center; gap:8px;
+    animation: bob 2.2s ease-in-out infinite;
+  }
+  .scroll-cue::after{ content:""; width:1px; height: 26px; background: rgba(245,241,234,0.4); }
+  @keyframes bob{ 0%,100%{ transform: translate(-50%,0);} 50%{ transform: translate(-50%,6px);} }
+
+  /* ---------- OUTRO SECTION ---------- */
+  .outro{
+    position: relative; overflow: hidden;
+    height:100vh; scroll-snap-align:start;
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    padding: 0 64px;
+    background: var(--bg);
+  }
+  .outro-label{ font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing:0.06em; margin-bottom: 18px; }
+  .outro h2{ font-family: var(--font-display); font-style:normal; font-weight:500; letter-spacing: -0.02em; font-size: clamp(26px,3.6vw,40px); max-width: 640px; margin-bottom: 26px; }
+  .outro-links{ display:flex; gap: 26px; font-family: var(--font-mono); font-size: 13.5px; }
+  .outro-links a{ text-decoration:none; color: var(--text-muted); border-bottom:1px solid transparent; padding-bottom:2px; transition: all .15s; }
+  .outro-links a:hover{ color: var(--text); border-color: var(--accent); }
+
+  /* ---------- INTRO / NAME SLIDE ---------- */
+  .intro-slide{
+    position: relative; overflow: hidden;
+    height:100vh; scroll-snap-align:start;
+    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    padding: 0 64px;
+    background: var(--bg);
+  }
+  .intro-slide .eyebrow{ font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); letter-spacing:0.08em; margin-bottom: 20px; }
+  .intro-slide h1{
+    font-family: var(--font-display); font-style: normal; font-weight: 500;
+    letter-spacing: -0.03em;
+    font-size: clamp(36px, 6vw, 68px); line-height: 1.02; margin-bottom: 24px;
+  }
+  .intro-slide p{ font-size: 16px; color: var(--text-muted); max-width: 480px; line-height: 1.6; margin-bottom: 30px; }
+  .intro-slide .scroll-cue{ position:absolute; }
+
+  /* background + readability scrim, shared by intro/outro slides */
+  .slide-content{ position: relative; z-index: 5; }
+  .bg-scrim-slide{
+    position:absolute; inset:0; pointer-events:none;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.75) 100%),
+      linear-gradient(100deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.1) 70%);
+  }
+
+  @media (max-width: 780px){
+    .rail{ display:none; }
+    .project-content{ flex-direction:column; align-items:flex-start; padding: 0 24px 40px; gap: 18px; }
+    .filmstrip{ overflow-x:auto; max-width: 100%; }
+    .placeholder-note{ right: 20px; top: 20px; }
+    .outro{ padding: 0 24px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .scroll-cue{ animation:none; }
+    .bg-photo{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="intro-mark"><span class="sq"></span>PORTFOLIO</div>
+<button class="contact-btn" id="contactBtn">Contact</button>
+
+<div class="rail" id="rail"></div>
+
+<div class="scroller" id="scroller">
+  <section class="intro-slide" id="introSlide">
+    <div class="bg-photo" id="bg-intro"></div>
+    <div class="bg-scrim-slide"></div>
+    <div class="placeholder-note">Background placeholder — replace with your image/video</div>
+    <div class="slide-content">
+      <div class="eyebrow">Portfolio — 2026</div>
+      <h1>Abdussamad Mohammed</h1>
+      <p>I design and build things, If it can be built, I'll do it! Here is some of my work.</p>
+    </div>
+    <div class="scroll-cue">Scroll</div>
+  </section>
+  <section class="outro" id="outroSection">
+    <div class="bg-photo" id="bg-outro"></div>
+    <div class="bg-scrim-slide"></div>
+    <div class="placeholder-note">Background placeholder — replace with your image/video</div>
+    <div class="slide-content">
+      <div class="outro-label">Well, This is the end. Or it could be the beginning!</div>
+      <h2>If you like what I do, Don't hesitate to get in touch.</h2>
+      <div class="outro-links">
+        <a href="mailto:AbdussamadMoh1@gmail.com">AbdussamadMoh1@gmail.com</a>
+        <a href="https://github.com/iitz3bsmd">GitHub</a>
+        <a href="www.linkedin.com/in/abdussamadmoh/">LinkedIn</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const PROJECTS = [
+    {
+      title: "CoTune Remote IoT Control Lab",
+      desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, with dynamic systems in modeled in Simulink and control algorithms deployed to embedded hardware",
+      meta: "AWS IoT · MATLAB · SOLIDWORKS · Embedded Systems · ESP32",
+      media: [ { type:'image', hue: 18 }, { type:'image', hue: 24 }, { type:'video', src: '' } ]
+    },
+    {
+      title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
+      desc: "A production line which takes raw materials and sorts it using machine vision and SCARA robot arm.",
+      meta: "Python · C/C++ · SOLIDWORKS · MATLAB · Simulink · Raspberry Pi",
+      media: [ { type:'image', hue: 205 }, { type:'image', hue: 198 } ]
+    },
+    {
+      title: "Modular Enclosure System",
+      desc: "A parametric family of 3D-printed enclosures sized to common board footprints, with a shared snap-fit lid design across every size.",
+      meta: "Fusion 360 · PETG · FDM · 2026",
+      media: [ { type:'image', hue: 80 }, { type:'image', hue: 70 }, { type:'image', hue: 88 }, { type:'image', hue: 60 } ]
+    },
+    {
+      title: "USB-C PD Trigger Board",
+      desc: "A small board that negotiates a fixed, selectable voltage over USB-C Power Delivery for use as a compact bench supply.",
+      meta: "KiCad · 2-layer · FUSB302 · 2025",
+      media: [ { type:'image', hue: 15 } ]
+    },
+    {
+      title: "Gerber Diff Tool",
+      desc: "A command-line tool that rasterizes two Gerber revisions and overlays them with a per-layer difference highlight, now part of the pre-fab checklist.",
+      meta: "Python · Pillow · 2025",
+      media: [ { type:'image', hue: 210 }, { type:'image', hue: 220 } ]
+    },
+    {
+      title: "Desk Cable Organizer",
+      desc: "A CNC-routed cable management tray, measured and modeled to fit a specific desk layout, finished in Danish oil.",
+      meta: "Baltic birch · CNC route · 2025",
+      media: [ { type:'image', hue: 40 }, { type:'image', hue: 34 } ]
+    }
+  ];
+
+  const scroller = document.getElementById('scroller');
+  const rail = document.getElementById('rail');
+  const outroSection = document.getElementById('outroSection');
+  const introSlide = document.getElementById('introSlide');
+  const dotMap = new Map(); // section id -> rail dot button
+
+  function makeDot(targetEl, label, special){
+    const dot = document.createElement('button');
+    dot.setAttribute('aria-label', 'Go to ' + label);
+    if(special) dot.classList.add('special');
+    dot.addEventListener('click', () => targetEl.scrollIntoView({ behavior: 'smooth' }));
+    rail.appendChild(dot);
+    dotMap.set(targetEl.id, dot);
+    return dot;
+  }
+
+  function divider(){
+    const d = document.createElement('div');
+    d.className = 'rail-divider';
+    rail.appendChild(d);
+  }
+
+  makeDot(introSlide, 'Intro', true).classList.add('active');
+  divider();
+
+  function photoGradient(hue, variant){
+    return `linear-gradient(${135 + variant*12}deg, hsl(${hue},38%,16%), hsl(${hue+20},30%,9%))`;
+  }
+
+  function renderBg(targetId, item, variant){
+    const bg = document.getElementById(targetId);
+    bg.style.backgroundImage = photoGradient(item.type === 'video' ? 0 : item.hue, variant);
+    if(item.type === 'video'){
+      bg.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
+      if(item.src){
+        bg.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
+      } else {
+        bg.innerHTML = `<div class="video-badge"><div class="play-icon"></div>Video placeholder — add project video (mp4)</div>`;
+      }
+    } else {
+      bg.innerHTML = '';
+    }
+  }
+
+  // Backgrounds for the intro (name) and outro (contact) slides.
+  // Set type:'video' and a src to use a video instead of an image, same as project media.
+  const INTRO_MEDIA = { type: 'image', hue: 0 };
+  const OUTRO_MEDIA = { type: 'image', hue: 0 };
+  renderBg('bg-intro', INTRO_MEDIA, 0);
+  renderBg('bg-outro', OUTRO_MEDIA, 1);
+
+  PROJECTS.forEach((p, i) => {
+    const section = document.createElement('section');
+    section.className = 'project';
+    section.id = 'proj-' + i;
+
+    const filmstripHtml = p.media.length > 1
+      ? `<div class="filmstrip">${p.media.map((m, mi) => `
+            <button data-proj="${i}" data-media="${mi}" style="background-image:${photoGradient(m.type==='video'?0:m.hue, mi)}" class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? '<span class="thumb-play"></span>' : ''}</button>
+          `).join('')}</div>`
+      : '';
+
+    section.innerHTML = `
+      <div class="bg-photo" id="bg-${i}"></div>
+      <div class="bg-scrim"></div>
+      <div class="placeholder-note">Photo placeholder — replace with project image</div>
+      <div class="project-content">
+        <div class="project-text">
+          <div class="project-title">${p.title}</div>
+          <div class="project-desc">${p.desc}</div>
+          <div class="project-meta">${p.meta}</div>
+        </div>
+        ${filmstripHtml}
+      </div>
+    `;
+    scroller.insertBefore(section, outroSection);
+    renderBg('bg-' + i, p.media[0], 0);
+
+    makeDot(section, p.title, false);
+  });
+
+  divider();
+  makeDot(outroSection, 'Contact', true);
+
+  scroller.addEventListener('click', (e) => {
+    const btn = e.target.closest('.filmstrip button');
+    if(!btn) return;
+    const proj = +btn.dataset.proj;
+    const mediaIdx = +btn.dataset.media;
+    const bg = document.getElementById('bg-' + proj);
+    bg.style.opacity = 0;
+    setTimeout(() => {
+      renderBg('bg-' + proj, PROJECTS[proj].media[mediaIdx], mediaIdx);
+      bg.style.opacity = 1;
+    }, 180);
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        dotMap.forEach(d => d.classList.remove('active'));
+        const dot = dotMap.get(entry.target.id);
+        if(dot) dot.classList.add('active');
+      }
+    });
+  }, { threshold: 0.6 });
+
+  document.querySelectorAll('section.project, .intro-slide, .outro').forEach(s => observer.observe(s));
+
+  document.getElementById('contactBtn').addEventListener('click', () => {
+    outroSection.scrollIntoView({ behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
