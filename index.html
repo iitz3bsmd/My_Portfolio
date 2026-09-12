@@ -176,6 +176,14 @@
     font-family: var(--font-mono); font-size: 11.5px;
     color: var(--text-muted); letter-spacing: 0.03em;
   }
+  .project-link{
+    display:inline-block; margin-top: 12px;
+    font-family: var(--font-mono); font-size: 11.5px;
+    letter-spacing: 0.03em; text-decoration:none;
+    color: var(--text-muted); border-bottom: 1px solid transparent;
+    padding-bottom: 2px; transition: all .15s ease;
+  }
+  .project-link:hover{ color: var(--text); border-color: var(--accent); }
 
   /* ---------- FILMSTRIP ---------- */
   .filmstrip{ display:flex; gap: 10px; flex-shrink: 0; }
@@ -302,31 +310,28 @@
       title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
       desc: "A production line which takes raw materials and sorts it using machine vision and SCARA robot arm.",
       meta: "Python · C/C++ · SOLIDWORKS · MATLAB · Simulink · Raspberry Pi",
+      link: "https://github.com/iitz3bsmd/autonomous_production_line",
       media: [ { type:'image', hue: 205 }, { type:'image', hue: 198 } ]
     },
     {
-      title: "Modular Enclosure System",
-      desc: "A parametric family of 3D-printed enclosures sized to common board footprints, with a shared snap-fit lid design across every size.",
-      meta: "Fusion 360 · PETG · FDM · 2026",
-      media: [ { type:'image', hue: 80 }, { type:'image', hue: 70 }, { type:'image', hue: 88 }, { type:'image', hue: 60 } ]
+      title: "PCB Design Portfolio",
+      desc: "A collection of embedded hardware and PCB designs built as a freelance hardware & PCB designer, each taken from schematic through manufacturing-ready layout following DFMA principles for optimized resource utilization.",
+      meta: "Altium Designer · PCB Design · Embedded Systems · AVR",
+      media: [ { type:'image', hue: 15 }, { type:'image', hue: 210 } ]
     },
     {
-      title: "USB-C PD Trigger Board",
-      desc: "A small board that negotiates a fixed, selectable voltage over USB-C Power Delivery for use as a compact bench supply.",
-      meta: "KiCad · 2-layer · FUSB302 · 2025",
-      media: [ { type:'image', hue: 15 } ]
+      title: "2D Kalman Filter",
+      desc: "Implementation of a 2D Kalman filter on a TurtleBot3 in Gazebo, fusing noisy sensor measurements into a validated state estimate.",
+      meta: "Python · ROS · Gazebo · TurtleBot3",
+      link: "https://github.com/iitz3bsmd/2d_kalman_filter",
+      media: [ { type:'image', hue: 220 } ]
     },
     {
-      title: "Gerber Diff Tool",
-      desc: "A command-line tool that rasterizes two Gerber revisions and overlays them with a per-layer difference highlight, now part of the pre-fab checklist.",
-      meta: "Python · Pillow · 2025",
-      media: [ { type:'image', hue: 210 }, { type:'image', hue: 220 } ]
-    },
-    {
-      title: "Desk Cable Organizer",
-      desc: "A CNC-routed cable management tray, measured and modeled to fit a specific desk layout, finished in Danish oil.",
-      meta: "Baltic birch · CNC route · 2025",
-      media: [ { type:'image', hue: 40 }, { type:'image', hue: 34 } ]
+      title: "Autonomous Car Simulation Model",
+      desc: "Built and trained a CNN-based neural network controller for autonomous navigation in the Udacity self-driving car simulator.",
+      meta: "Python · PyTorch · Udacity Simulator",
+      link: "https://github.com/iitz3bsmd/autonomous_car_sim_model",
+      media: [ { type:'image', hue: 40 } ]
     }
   ];
 
@@ -411,6 +416,7 @@
           <div class="project-title">${p.title}</div>
           <div class="project-desc">${p.desc}</div>
           <div class="project-meta">${p.meta}</div>
+          ${p.link ? `<a class="project-link" href="${p.link}" target="_blank" rel="noopener">View on GitHub →</a>` : ''}
         </div>
         ${filmstripHtml}
       </div>
