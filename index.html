@@ -94,7 +94,7 @@
     height: 100vh;
     width: 100%;
     scroll-snap-align: start;
-    display:flex; align-items:flex-end;
+    display:flex; flex-direction:column;
     overflow:hidden;
   }
 
@@ -128,6 +128,7 @@
   .project-content{
     position:relative; z-index: 5;
     width: 100%;
+    margin-top: auto;
     padding: 0 64px 68px;
     display:flex; align-items:flex-end; justify-content:space-between;
     gap: 40px;
@@ -160,18 +161,44 @@
   .project-link:hover{ color: var(--text); border-color: var(--accent); }
 
   /* ---------- FILMSTRIP ---------- */
-  .filmstrip{ display:flex; gap: 10px; flex-shrink: 0; }
+  .filmstrip{ display:flex; gap: 14px; flex-shrink: 0; }
   .filmstrip button{
-    width: 76px; height: 54px;
-    border-radius: 0;
+    width: 92px; height: 66px;
+    border-radius: 2px;
     border: 2px solid rgba(245,245,245,0.25);
     background-size: cover; background-position:center;
     cursor:pointer; padding:0;
     opacity: 0.65;
+    transition: all .18s ease;
+  }
+  .filmstrip button:hover{ opacity: 0.9; transform: translateY(-3px); border-color: rgba(245,245,245,0.6); }
+  .filmstrip button:active{ transform: translateY(-1px); }
+  .filmstrip button.active{ border-color: var(--accent); opacity: 1; }
+
+  /* ---------- PREV / NEXT SECTION NAV ---------- */
+  .section-nav{
+    position: relative; z-index: 6;
+    display:flex; justify-content:center; align-items:center;
+    flex-shrink: 0;
+  }
+  .section-nav.nav-top{ padding: 22px 0 0; }
+  .section-nav.nav-bottom{ padding: 0 0 18px; }
+  .nav-btn{
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(245,245,245,0.35);
+    background: rgba(0,0,0,0.32);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--text);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
     transition: all .2s ease;
   }
-  .filmstrip button:hover{ opacity: 0.9; }
-  .filmstrip button.active{ border-color: var(--accent); opacity: 1; }
+  .nav-btn svg{ width: 15px; height: 15px; stroke: currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .nav-btn:hover{ background: rgba(245,245,245,0.16); border-color: var(--accent); transform: translateY(-2px); }
+  .nav-btn:active{ transform: translateY(0); }
+  .nav-btn[disabled]{ opacity: 0.2; cursor:default; pointer-events:none; transform:none; }
 
   /* ---------- SCROLL CUE (first section only) ---------- */
   .scroll-cue{
@@ -187,7 +214,7 @@
   .outro{
     position: relative; overflow: hidden;
     height:100vh; scroll-snap-align:start;
-    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    display:flex; flex-direction:column;
     padding: 0 64px;
     background: var(--bg);
   }
@@ -201,7 +228,7 @@
   .intro-slide{
     position: relative; overflow: hidden;
     height:100vh; scroll-snap-align:start;
-    display:flex; flex-direction:column; align-items:flex-start; justify-content:center;
+    display:flex; flex-direction:column;
     padding: 0 64px;
     background: var(--bg);
   }
@@ -215,7 +242,7 @@
   .intro-slide .scroll-cue{ position:absolute; }
 
   /* background + readability scrim, shared by intro/outro slides */
-  .slide-content{ position: relative; z-index: 5; }
+  .slide-content{ position: relative; z-index: 5; margin: auto 0; }
   .bg-scrim-slide{
     position:absolute; inset:0; pointer-events:none;
     background:
@@ -227,7 +254,10 @@
     .rail{ display:none; }
     .project-content{ flex-direction:column; align-items:flex-start; padding: 0 24px 40px; gap: 18px; }
     .filmstrip{ overflow-x:auto; max-width: 100%; }
-    .outro{ padding: 0 24px; }
+    .filmstrip button{ width: 80px; height: 58px; flex-shrink:0; }
+    .outro, .intro-slide{ padding: 0 24px; }
+    .section-nav{ gap: 12px; }
+    .nav-btn{ width: 34px; height: 34px; }
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -252,11 +282,17 @@
       <h1>Abdussamad Mohammed</h1>
       <p>I design and build things, If it can be built, I'll do it! Here is some of my work.</p>
     </div>
+    <div class="section-nav nav-bottom">
+      <button class="nav-btn" data-nav="next" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
     <div class="scroll-cue">Scroll</div>
   </section>
   <section class="outro" id="outroSection">
     <div class="bg-photo" id="bg-outro"></div>
     <div class="bg-scrim-slide"></div>
+    <div class="section-nav nav-top">
+      <button class="nav-btn" data-nav="prev" aria-label="Previous section"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+    </div>
     <div class="slide-content">
       <div class="outro-label">Well, This is the end. Or it could be the beginning!</div>
       <h2>If you like what I do, Don't hesitate to get in touch.</h2>
@@ -302,7 +338,7 @@
       desc: "Implementation of a 2D Kalman filter on a TurtleBot3 in Gazebo, fusing noisy sensor measurements into a validated state estimate.",
       meta: "Python · ROS · Gazebo · TurtleBot3",
       link: "https://github.com/iitz3bsmd/2d_kalman_filter",
-      media: [ { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/kalman_filter/278774497-40a08af2-550f-4c17-8c0d-fe2e68a8d932.mp4" } ]
+      media: [ { type:'video', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/kalman_filter/278774497-40a08af2-550f-4c17-8c0d-fe2e68a8d932.mp4" } ]
     },
     {
       title: "Aerial Object Detection",
@@ -385,9 +421,15 @@
           `).join('')}</div>`
       : '';
 
+    const upIcon = `<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>`;
+    const downIcon = `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`;
+    const prevRow = `<div class="section-nav nav-top"><button class="nav-btn" data-nav="prev" aria-label="Previous project">${upIcon}</button></div>`;
+    const nextRow = `<div class="section-nav nav-bottom"><button class="nav-btn" data-nav="next" aria-label="Next project">${downIcon}</button></div>`;
+
     section.innerHTML = `
       <div class="bg-photo" id="bg-${i}"></div>
       <div class="bg-scrim"></div>
+      ${prevRow}
       <div class="project-content">
         <div class="project-text">
           <div class="project-title">${p.title}</div>
@@ -397,6 +439,7 @@
         </div>
         ${filmstripHtml}
       </div>
+      ${nextRow}
     `;
     scroller.insertBefore(section, outroSection);
     renderBg('bg-' + i, p.media[0], 0);
@@ -407,7 +450,25 @@
   divider();
   makeDot(outroSection, 'Contact', true);
 
+  // ---------- PREV / NEXT SECTION NAVIGATION ----------
+  const allSections = Array.from(scroller.children).filter(el =>
+    el.classList.contains('intro-slide') || el.classList.contains('project') || el.classList.contains('outro')
+  );
+
+  function scrollToSectionIndex(idx){
+    if(idx < 0 || idx >= allSections.length) return;
+    allSections[idx].scrollIntoView({ behavior: 'smooth' });
+  }
+
   scroller.addEventListener('click', (e) => {
+    const navBtn = e.target.closest('.nav-btn');
+    if(navBtn){
+      if(navBtn.disabled) return;
+      const section = navBtn.closest('.intro-slide, section.project, .outro');
+      const idx = allSections.indexOf(section);
+      scrollToSectionIndex(navBtn.dataset.nav === 'prev' ? idx - 1 : idx + 1);
+      return;
+    }
     const btn = e.target.closest('.filmstrip button');
     if(!btn) return;
     const proj = +btn.dataset.proj;
