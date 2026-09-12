@@ -273,29 +273,22 @@
   const PROJECTS = [
     {
       title: "CoTune Remote IoT Control Lab",
-      desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, with dynamic systems in modeled in Simulink and control algorithms deployed to embedded hardware",
+      desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, implemented on Quad-Rotor and Inverted Pendulum from scratch; with dynamic systems modeled in Simulink and control algorithms deployed to embedded hardware",
       meta: "AWS IoT · MATLAB · SOLIDWORKS · Embedded Systems · ESP32",
-      media: [ { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/image.jpg?raw=true" }, { type:'video', src: '/cotune/CO-TUNE Video.mp4' } ]
+      media: [ { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/image.jpg?raw=true" }, { type:'video', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/cotune/CO-TUNE%20Video.mp4" } ]
     },
     {
       title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
       desc: "A production line which takes raw materials and sorts it using machine vision and SCARA robot arm.",
       meta: "Python · C/C++ · SOLIDWORKS · MATLAB · Simulink · Raspberry Pi",
       link: "https://github.com/iitz3bsmd/autonomous_production_line",
-      media: [ { type:'image', hue: 205 }, { type:'image', hue: 198 } ]
+      media: [ { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/production_line/1716850263790.jpg?raw=true" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/production_line/1716850260291.jpg?raw=true" } ]
     },
     {
       title: "PCB Design Portfolio",
       desc: "A collection of embedded hardware and PCB designs built as a freelance hardware & PCB designer, each taken from schematic through manufacturing-ready layout following DFMA principles for optimized resource utilization.",
       meta: "Altium Designer · PCB Design · Embedded Systems · AVR",
       media: [ { type:'image', hue: 15 }, { type:'image', hue: 210 } ]
-    },
-    {
-      title: "2D Kalman Filter",
-      desc: "Implementation of a 2D Kalman filter on a TurtleBot3 in Gazebo, fusing noisy sensor measurements into a validated state estimate.",
-      meta: "Python · ROS · Gazebo · TurtleBot3",
-      link: "https://github.com/iitz3bsmd/2d_kalman_filter",
-      media: [ { type:'image', hue: 220 } ]
     },
     {
       title: "Autonomous Car Simulation Model",
@@ -362,8 +355,8 @@
 
   // Backgrounds for the intro (name) and outro (contact) slides.
   // Set type:'video' and a src to use a video instead of an image, same as project media.
-  const INTRO_MEDIA = { type: 'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/482081371_1746385119609856_7694317917194639728_n.jpg?raw=true" };
-  const OUTRO_MEDIA = { type: 'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/481060675_1743213683260333_2111703777342603916_n.jpg?raw=true" };
+  const INTRO_MEDIA = { type: 'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/481060675_1743213683260333_2111703777342603916_n.jpg?raw=true" };
+  const OUTRO_MEDIA = { type: 'image', src: "" };
   renderBg('bg-intro', INTRO_MEDIA, 0);
   renderBg('bg-outro', OUTRO_MEDIA, 1);
 
