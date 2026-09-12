@@ -107,23 +107,6 @@
     position:absolute; inset:0; width:100%; height:100%;
     object-fit: cover;
   }
-  .video-badge{
-    position:absolute; inset:0;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
-    font-family: var(--font-mono); font-size: 11px; color: rgba(245,245,245,0.6);
-    letter-spacing: 0.04em; pointer-events:none;
-  }
-  .video-badge .play-icon{
-    width: 46px; height: 46px; border-radius: 50%;
-    border: 1px solid rgba(245,245,245,0.4);
-    display:flex; align-items:center; justify-content:center;
-  }
-  .video-badge .play-icon::before{
-    content:""; width:0; height:0;
-    border-top: 7px solid transparent; border-bottom: 7px solid transparent;
-    border-left: 11px solid rgba(245,245,245,0.75);
-    margin-left: 3px;
-  }
   .filmstrip button{ position: relative; }
   .filmstrip .thumb-play{
     position:absolute; bottom:4px; right:4px;
@@ -140,15 +123,6 @@
     position:absolute; inset:0;
     background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 35%, transparent 55%, var(--scrim-bottom) 100%);
     pointer-events:none;
-  }
-
-  .placeholder-note{
-    position:absolute; top:24px; right:70px;
-    font-family: var(--font-mono); font-size: 10.5px;
-    color: rgba(245,241,234,0.55);
-    border: 1px dashed rgba(245,241,234,0.3);
-    padding: 5px 9px; border-radius: 3px;
-    letter-spacing: 0.03em;
   }
 
   .project-content{
@@ -253,7 +227,6 @@
     .rail{ display:none; }
     .project-content{ flex-direction:column; align-items:flex-start; padding: 0 24px 40px; gap: 18px; }
     .filmstrip{ overflow-x:auto; max-width: 100%; }
-    .placeholder-note{ right: 20px; top: 20px; }
     .outro{ padding: 0 24px; }
   }
 
@@ -274,7 +247,6 @@
   <section class="intro-slide" id="introSlide">
     <div class="bg-photo" id="bg-intro"></div>
     <div class="bg-scrim-slide"></div>
-    <div class="placeholder-note">Background placeholder — replace with your image/video</div>
     <div class="slide-content">
       <div class="eyebrow">Portfolio — 2026</div>
       <h1>Abdussamad Mohammed</h1>
@@ -285,7 +257,6 @@
   <section class="outro" id="outroSection">
     <div class="bg-photo" id="bg-outro"></div>
     <div class="bg-scrim-slide"></div>
-    <div class="placeholder-note">Background placeholder — replace with your image/video</div>
     <div class="slide-content">
       <div class="outro-label">Well, This is the end. Or it could be the beginning!</div>
       <h2>If you like what I do, Don't hesitate to get in touch.</h2>
@@ -304,7 +275,7 @@
       title: "CoTune Remote IoT Control Lab",
       desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, with dynamic systems in modeled in Simulink and control algorithms deployed to embedded hardware",
       meta: "AWS IoT · MATLAB · SOLIDWORKS · Embedded Systems · ESP32",
-      media: [ { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', hue: 24 }, { type:'video', src: '' } ]
+      media: [ { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/image.jpg?raw=true" }, { type:'video', src: '/cotune/CO-TUNE Video.mp4' } ]
     },
     {
       title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
@@ -381,7 +352,7 @@
         bg.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
       } else {
         bg.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
-        bg.innerHTML = `<div class="video-badge"><div class="play-icon"></div>Video placeholder — add project video (mp4)</div>`;
+        bg.innerHTML = '';
       }
     } else {
       bg.style.backgroundImage = mediaBackground(item, variant);
@@ -391,8 +362,8 @@
 
   // Backgrounds for the intro (name) and outro (contact) slides.
   // Set type:'video' and a src to use a video instead of an image, same as project media.
-  const INTRO_MEDIA = { type: 'image', hue: 0 };
-  const OUTRO_MEDIA = { type: 'image', hue: 0 };
+  const INTRO_MEDIA = { type: 'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/482081371_1746385119609856_7694317917194639728_n.jpg?raw=true" };
+  const OUTRO_MEDIA = { type: 'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/481060675_1743213683260333_2111703777342603916_n.jpg?raw=true" };
   renderBg('bg-intro', INTRO_MEDIA, 0);
   renderBg('bg-outro', OUTRO_MEDIA, 1);
 
@@ -410,7 +381,6 @@
     section.innerHTML = `
       <div class="bg-photo" id="bg-${i}"></div>
       <div class="bg-scrim"></div>
-      <div class="placeholder-note">Photo placeholder — replace with project image</div>
       <div class="project-content">
         <div class="project-text">
           <div class="project-title">${p.title}</div>
