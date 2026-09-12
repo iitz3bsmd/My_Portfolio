@@ -56,7 +56,9 @@
   .rail{
     position: fixed; right: 26px; top:50%; transform: translateY(-50%);
     z-index: 40; display:flex; flex-direction:column; gap: 14px; align-items:center;
+    opacity: 1; transition: opacity .35s ease;
   }
+  .rail.rail-hidden{ opacity: 0; pointer-events: none; }
   .rail button{
     width: 8px; height: 8px; border-radius:50%;
     border: 1px solid rgba(245,245,245,0.45);
@@ -186,19 +188,40 @@
   .project-link:hover{ color: var(--text); border-color: var(--accent); }
 
   /* ---------- FILMSTRIP ---------- */
-  .filmstrip{ display:flex; gap: 14px; flex-shrink: 0; }
+  .filmstrip-row{ display:flex; align-items:center; gap: 10px; flex-shrink: 0; max-width: min(360px, 40vw); }
+  .filmstrip{
+    display:flex; gap: 14px;
+    overflow-x: auto; scroll-behavior: smooth; scroll-snap-type: x proximity;
+    scrollbar-width: none; -ms-overflow-style: none;
+  }
+  .filmstrip::-webkit-scrollbar{ display:none; }
   .filmstrip button{
     width: 92px; height: 66px;
     border-radius: 2px;
     border: 2px solid rgba(245,245,245,0.25);
     background-size: cover; background-position:center;
-    cursor:pointer; padding:0;
+    cursor:pointer; padding:0; flex-shrink: 0;
+    scroll-snap-align: start;
     opacity: 0.65;
     transition: all .18s ease;
   }
   .filmstrip button:hover{ opacity: 0.9; transform: translateY(-3px); border-color: rgba(245,245,245,0.6); }
   .filmstrip button:active{ transform: translateY(-1px); }
   .filmstrip button.active{ border-color: var(--accent); opacity: 1; }
+
+  /* left/right scroll arrows for the filmstrip, shown only when thumbnails overflow */
+  .fs-arrow{
+    width: 20px; height: 30px; flex-shrink: 0;
+    border: none; background: transparent;
+    color: var(--text); opacity: 0.55;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition: opacity .2s ease, transform .2s ease;
+  }
+  .fs-arrow svg{ width: 16px; height: 16px; stroke: currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .fs-arrow:hover{ opacity: 1; }
+  .fs-arrow:active{ transform: scale(0.9); }
+  .fs-arrow[disabled]{ opacity: 0.15; cursor:default; pointer-events:none; }
+  .filmstrip-row.no-overflow .fs-arrow{ display:none; }
 
   /* ---------- PREV / NEXT SECTION NAV ---------- */
   .section-nav{
@@ -288,8 +311,10 @@
     section.project .bg-photo{ top: 25%; bottom: 25%; background-size: cover; }
     section.project .bg-photo video{ object-fit: cover; }
     .project-content{ flex-direction:column; align-items:flex-start; padding: 0 24px 40px; gap: 18px; }
-    .filmstrip{ overflow-x:auto; max-width: 100%; }
+    .filmstrip-row{ max-width: 100%; width: 100%; }
     .filmstrip button{ width: 80px; height: 58px; flex-shrink:0; }
+    .fs-arrow{ width: 18px; height: 26px; }
+    .fs-arrow svg{ width: 14px; height: 14px; }
     .outro, .intro-slide{ padding: 0 24px; }
     .section-nav{ gap: 12px; }
     .nav-btn{ width: 34px; height: 34px; }
@@ -306,7 +331,7 @@
 <div class="intro-mark"><span class="sq"></span>PORTFOLIO</div>
 <button class="contact-btn" id="contactBtn">Contact Me</button>
 
-<div class="rail" id="rail"></div>
+<div class="rail rail-hidden" id="rail"></div>
 
 <div class="scroller" id="scroller">
   <section class="intro-slide" id="introSlide">
@@ -456,9 +481,13 @@
     section.id = 'proj-' + i;
 
     const filmstripHtml = p.media.length > 1
-      ? `<div class="filmstrip">${p.media.map((m, mi) => `
-            <button data-proj="${i}" data-media="${mi}" style="background-image:${mediaBackground(m, mi)}" class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? '<span class="thumb-play"></span>' : ''}</button>
-          `).join('')}</div>`
+      ? `<div class="filmstrip-row">
+            <button class="fs-arrow fs-prev" aria-label="Scroll thumbnails left" disabled><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+            <div class="filmstrip">${p.media.map((m, mi) => `
+              <button data-proj="${i}" data-media="${mi}" style="background-image:${mediaBackground(m, mi)}" class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? '<span class="thumb-play"></span>' : ''}</button>
+            `).join('')}</div>
+            <button class="fs-arrow fs-next" aria-label="Scroll thumbnails right"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+          </div>`
       : '';
 
     const upIcon = `<svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>`;
@@ -483,6 +512,24 @@
     `;
     scroller.insertBefore(section, outroSection);
     renderBg('bg-' + i, p.media[0], 0);
+
+    if(p.media.length > 1){
+      const filmEl = section.querySelector('.filmstrip');
+      const rowEl = section.querySelector('.filmstrip-row');
+      const prevBtn = rowEl.querySelector('.fs-prev');
+      const nextBtn = rowEl.querySelector('.fs-next');
+      const updateArrows = () => {
+        const max = filmEl.scrollWidth - filmEl.clientWidth;
+        rowEl.classList.toggle('no-overflow', max <= 2);
+        prevBtn.disabled = filmEl.scrollLeft <= 2;
+        nextBtn.disabled = filmEl.scrollLeft >= max - 2;
+      };
+      filmEl.addEventListener('scroll', updateArrows);
+      window.addEventListener('resize', updateArrows);
+      prevBtn.addEventListener('click', () => filmEl.scrollBy({ left: -220, behavior: 'smooth' }));
+      nextBtn.addEventListener('click', () => filmEl.scrollBy({ left: 220, behavior: 'smooth' }));
+      requestAnimationFrame(updateArrows);
+    }
 
     makeDot(section, p.title, false);
   });
@@ -529,6 +576,8 @@
         dotMap.forEach(d => d.classList.remove('active'));
         const dot = dotMap.get(entry.target.id);
         if(dot) dot.classList.add('active');
+        const isEndSlide = entry.target === introSlide || entry.target === outroSection;
+        rail.classList.toggle('rail-hidden', isEndSlide);
       }
     });
   }, { threshold: 0.6 });
