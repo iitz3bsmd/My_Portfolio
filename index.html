@@ -296,7 +296,7 @@
       title: "CoTune Remote IoT Control Lab",
       desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, with dynamic systems in modeled in Simulink and control algorithms deployed to embedded hardware",
       meta: "AWS IoT · MATLAB · SOLIDWORKS · Embedded Systems · ESP32",
-      media: [ { type:'image', "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', hue: 24 }, { type:'video', src: '' } ]
+      media: [ { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', hue: 24 }, { type:'video', src: '' } ]
     },
     {
       title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
@@ -359,17 +359,27 @@
     return `linear-gradient(${135 + variant*12}deg, hsl(${hue},38%,16%), hsl(${hue+20},30%,9%))`;
   }
 
+  // Resolves what to show as a CSS background: a real photo (src) takes priority,
+  // otherwise falls back to the placeholder gradient (hue).
+  function mediaBackground(item, variant){
+    if(item.src){
+      return `url('${item.src}')`;
+    }
+    return photoGradient(item.type === 'video' ? 0 : item.hue, variant);
+  }
+
   function renderBg(targetId, item, variant){
     const bg = document.getElementById(targetId);
-    bg.style.backgroundImage = photoGradient(item.type === 'video' ? 0 : item.hue, variant);
     if(item.type === 'video'){
-      bg.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
       if(item.src){
+        bg.style.backgroundImage = 'none';
         bg.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
       } else {
+        bg.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
         bg.innerHTML = `<div class="video-badge"><div class="play-icon"></div>Video placeholder — add project video (mp4)</div>`;
       }
     } else {
+      bg.style.backgroundImage = mediaBackground(item, variant);
       bg.innerHTML = '';
     }
   }
@@ -388,7 +398,7 @@
 
     const filmstripHtml = p.media.length > 1
       ? `<div class="filmstrip">${p.media.map((m, mi) => `
-            <button data-proj="${i}" data-media="${mi}" style="background-image:${photoGradient(m.type==='video'?0:m.hue, mi)}" class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? '<span class="thumb-play"></span>' : ''}</button>
+            <button data-proj="${i}" data-media="${mi}" style="background-image:${mediaBackground(m, mi)}" class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? '<span class="thumb-play"></span>' : ''}</button>
           `).join('')}</div>`
       : '';
 
