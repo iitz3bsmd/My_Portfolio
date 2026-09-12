@@ -14,7 +14,8 @@
     --text-muted: rgba(245,245,245,0.65);
     --accent: #F5F5F5;
     --scrim-top: rgba(0,0,0,0.15);
-    --scrim-bottom: rgba(0,0,0,0.92);
+    --scrim-mid: rgba(0,0,0,0.6);
+    --scrim-bottom: rgba(0,0,0,0.97);
     --font-display: 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
@@ -121,7 +122,18 @@
   }
   .bg-scrim{
     position:absolute; inset:0;
-    background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 35%, transparent 55%, var(--scrim-bottom) 100%);
+    background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 32%, transparent 42%, var(--scrim-mid) 62%, var(--scrim-bottom) 82%, var(--scrim-bottom) 100%);
+    pointer-events:none;
+  }
+  /* Extra focused darkening directly behind the title/description block,
+     layered above bg-scrim so text stays legible over busy photos */
+  .project-content::before{
+    content:"";
+    position:absolute;
+    left:0; right:0; bottom:0;
+    top:-140px;
+    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.85) 100%);
+    z-index:-1;
     pointer-events:none;
   }
 
