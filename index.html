@@ -114,7 +114,7 @@
 
   .bg-photo{
     position:absolute; inset:0;
-    background-size: cover; background-position: center;
+    background-size: cover; background-position: center; background-repeat: no-repeat;
     transition: opacity .5s ease;
   }
   .bg-photo video{
@@ -282,6 +282,8 @@
     .rail .rail-divider{ width: 8px; }
     .rail button.rail-arrow{ width: 14px; height: 25px; border-radius: 7px; }
     .rail button.rail-arrow svg{ width: 9px; height: 9px; }
+    .bg-photo{ background-size: contain; }
+    .bg-photo video{ object-fit: contain; }
     .project-content{ flex-direction:column; align-items:flex-start; padding: 0 24px 40px; gap: 18px; }
     .filmstrip{ overflow-x:auto; max-width: 100%; }
     .filmstrip button{ width: 80px; height: 58px; flex-shrink:0; }
