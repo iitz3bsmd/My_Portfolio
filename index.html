@@ -116,9 +116,14 @@
 
   .bg-photo{
     position:absolute; inset:0;
-    transition: opacity .5s ease, top .5s ease, bottom .5s ease;
+    background-size: cover; background-position: center;
+    transition: opacity .5s ease, top .5s ease, bottom .5s ease, transform .34s cubic-bezier(.22,.61,.36,1);
     touch-action: pan-y;
   }
+  /* while actively dragging, the transform must follow the finger with zero
+     lag — no eased transition — the eased transform transition above only
+     kicks back in once the finger lifts (slide-out / snap-back / settle) */
+  .bg-photo.is-dragging{ transition: opacity .5s ease, top .5s ease, bottom .5s ease; }
   /* the swipe/drag gesture on the media is only active once the text is
      hidden (see JS) — cursor affordance matches that */
   section.project.text-hidden .bg-photo{ cursor: grab; }
@@ -652,11 +657,12 @@
       const mediaEl = section.querySelector('.bg-photo');
       const SWIPE_THRESHOLD = 40;
       let drag = null;
+      let swipeBusy = false; // true while a slide-out/slide-in settle is in flight
 
       const currentIndex = () => +section.querySelector('.filmstrip button.active').dataset.media;
 
       mediaEl.addEventListener('pointerdown', (e) => {
-        if(!section.classList.contains('text-hidden')) return;
+        if(!section.classList.contains('text-hidden') || swipeBusy) return;
         if(e.pointerType === 'mouse' && e.button !== 0) return;
         drag = { id: e.pointerId, startX: e.clientX, startY: e.clientY, axis: null };
       });
@@ -671,19 +677,45 @@
             mediaEl.classList.add('is-dragging');
           }
         }
-        if(drag.axis === 'x') e.preventDefault();
+        if(drag.axis === 'x'){
+          e.preventDefault();
+          // live 1:1 tracking of the finger/cursor — this is what makes it
+          // feel like an actual swipe instead of a delayed toggle
+          mediaEl.style.transform = `translateX(${dx}px)`;
+        }
       });
       const endDrag = (e) => {
         if(!drag || drag.id !== e.pointerId){ drag = null; return; }
         if(drag.axis === 'x'){
           const dx = e.clientX - drag.startX;
+          mediaEl.classList.remove('is-dragging'); // re-enable eased transform transition
           if(Math.abs(dx) > SWIPE_THRESHOLD){
+            swipeBusy = true;
             const dir = dx < 0 ? 1 : -1; // swiped left -> next item
             const next = (currentIndex() + dir + p.media.length) % p.media.length;
-            setActiveMedia(i, next);
+            const width = mediaEl.clientWidth || window.innerWidth;
+            const exitX = -dir * width;
+            // carry the current image the rest of the way off-screen in the
+            // direction it was already being dragged
+            mediaEl.style.transform = `translateX(${exitX}px)`;
+            const onExit = (ev) => {
+              if(ev.target !== mediaEl || ev.propertyName !== 'transform') return;
+              mediaEl.removeEventListener('transitionend', onExit);
+              setActiveMedia(i, next); // swaps + crossfades the media itself
+              // snap instantly back to center (no transition) so the next
+              // gesture starts clean, without a visible reverse-slide
+              mediaEl.classList.add('is-dragging');
+              mediaEl.style.transform = 'translateX(0)';
+              void mediaEl.offsetWidth; // force reflow so the jump is instant
+              mediaEl.classList.remove('is-dragging');
+              swipeBusy = false;
+            };
+            mediaEl.addEventListener('transitionend', onExit);
+          } else {
+            // didn't clear the threshold — spring back to center
+            mediaEl.style.transform = 'translateX(0)';
           }
         }
-        mediaEl.classList.remove('is-dragging');
         drag = null;
       };
       mediaEl.addEventListener('pointerup', endDrag);
@@ -736,6 +768,15 @@
         if(dot) dot.classList.add('active');
         const isEndSlide = entry.target === introSlide || entry.target === outroSection;
         rail.classList.toggle('rail-hidden', isEndSlide);
+      } else if(entry.target.classList.contains('project') && entry.target.classList.contains('text-hidden')){
+        // leaving a project while it's in "media view" — reset it back to
+        // text mode so it's always found showing text on return
+        entry.target.classList.remove('text-hidden');
+        const toggleBtn = entry.target.querySelector('.media-toggle-btn');
+        if(toggleBtn){
+          toggleBtn.setAttribute('aria-label', 'Hide text');
+          toggleBtn.innerHTML = EYE_OFF_ICON;
+        }
       }
     });
   }, { threshold: 0.6 });
