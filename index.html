@@ -141,11 +141,22 @@
   }
   .bg-layer-cover{ background-size: cover; opacity: 1; }
   .bg-layer-full{ background-size: contain; opacity: 0; }
+  /* Fills the letterbox bars behind the "full" (contain) layer with the same
+     media, scaled to cover and heavily blurred, instead of leaving the plain
+     dark section background showing — project sections only; intro/outro
+     stay a single plain layer and are unaffected. */
+  .bg-layer-blur{
+    background-size: cover;
+    opacity: 1;
+    filter: blur(40px) brightness(0.65);
+    transform: scale(1.15);
+  }
   .bg-layer video{
     position:absolute; inset:0; width:100%; height:100%;
   }
   .bg-layer-cover video{ object-fit: cover; }
   .bg-layer-full video{ object-fit: contain; }
+  .bg-layer-blur video{ object-fit: cover; }
   section.project.text-hidden .bg-layer-cover{ opacity: 0; }
   section.project.text-hidden .bg-layer-full{ opacity: 1; }
   .filmstrip button{ position: relative; }
@@ -561,10 +572,11 @@
   function renderBg(targetId, item, variant){
     const bg = document.getElementById(targetId);
     const coverEl = bg.querySelector('.bg-layer-cover');
+    const blurEl = bg.querySelector('.bg-layer-blur');
     const fullEl = bg.querySelector('.bg-layer-full');
-    // Project sections have two stacked layers (cover + full) to crossfade
-    // between; the intro/outro slides are still a single plain div.
-    const targets = coverEl && fullEl ? [coverEl, fullEl] : [bg];
+    // Project sections have three stacked layers (cover + blur + full) to
+    // crossfade between; the intro/outro slides are still a single plain div.
+    const targets = coverEl && fullEl ? [coverEl, blurEl, fullEl].filter(Boolean) : [bg];
     targets.forEach(el => { el.innerHTML = ''; el.style.backgroundImage = 'none'; });
     if(item.type === 'video'){
       if(item.src){
@@ -634,7 +646,7 @@
     const nextRow = `<div class="section-nav nav-bottom"><button class="nav-btn" data-nav="next" aria-label="Next project">${downIcon}</button></div>`;
 
     section.innerHTML = `
-      <div class="bg-photo" id="bg-${i}"><div class="bg-layer bg-layer-cover"></div><div class="bg-layer bg-layer-full"></div></div>
+      <div class="bg-photo" id="bg-${i}"><div class="bg-layer bg-layer-cover"></div><div class="bg-layer bg-layer-blur"></div><div class="bg-layer bg-layer-full"></div></div>
       <div class="bg-scrim"></div>
       ${prevRow}
       <div class="project-content">
