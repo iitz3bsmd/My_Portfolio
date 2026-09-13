@@ -190,6 +190,28 @@
     gap: 40px;
   }
   .project-text{ max-width: 620px; }
+  .click-hint{
+    position:absolute;
+    left:0; right:0; top:-24px;
+    transform: translateY(-100%);
+    text-align:center;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    opacity: 0.85;
+    transition: opacity .35s ease;
+  }
+  .click-hint::before{
+    content:"";
+    position:absolute;
+    left:50%; top:50%;
+    transform: translate(-50%,-50%);
+    width: 160px; height: 64px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 72%);
+    z-index:-1;
+    pointer-events:none;
+  }
   .project-title{
     font-family: var(--font-display);
     font-style: normal;
@@ -294,6 +316,13 @@
     opacity: 0;
     transform: translateY(28px);
     pointer-events: none;
+  }
+  .click-hint{ pointer-events: none; }
+  section.project.text-hidden .click-hint{
+    opacity: 0;
+  }
+  section.project.hint-seen .click-hint{
+    opacity: 0;
   }
   /* both dark gradient layers fade out together with the text */
   section.project.text-hidden .bg-scrim{ opacity: 0; }
@@ -604,6 +633,7 @@
       <div class="bg-scrim"></div>
       ${prevRow}
       <div class="project-content">
+        <span class="click-hint">click</span>
         <div class="project-text">
           <div class="project-title">${p.title}</div>
           <div class="project-desc">${p.desc}</div>
@@ -643,6 +673,7 @@
       rowEl.addEventListener('click', (e) => {
         if(e.target.closest('.filmstrip button, .fs-arrow')) return;
         section.classList.add('text-hidden');
+        section.classList.add('hint-seen');
       });
     }
 
@@ -726,6 +757,7 @@
         // user panning to the next/previous section) deliberately does
         // NOT toggle anything here.
         section.classList.toggle('text-hidden');
+        section.classList.add('hint-seen');
       }
       drag = null;
     };
