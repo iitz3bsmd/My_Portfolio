@@ -460,7 +460,7 @@
     <div class="slide-content">
       <div class="eyebrow">Hello there!</div>
       <h1>I'm Abdussamad Mohammed</h1>
-      <p>I design and build things for fun. If it can be built, I'm building it! <br> Here is some of my work.</p>
+      <p>And I design and build things for fun!<br> Here is some of my work.</p>
     </div>
     <div class="section-nav nav-bottom">
       <button class="nav-btn" data-nav="next" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -618,7 +618,17 @@
       b.classList.toggle('active', +b.dataset.media === mediaIdx);
     });
     const activeBtn = section.querySelector(`.filmstrip button[data-media="${mediaIdx}"]`);
-    if(activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    const filmEl = section.querySelector('.filmstrip');
+    // Scroll only the filmstrip's own track into position (manually, via
+    // scrollLeft) rather than calling scrollIntoView on the button — that
+    // API can walk up and nudge outer scroll containers too (the page body
+    // included, since it's a valid scroll target even with overflow:hidden),
+    // which is what caused the whole page to creep left as later thumbnails
+    // were selected.
+    if(activeBtn && filmEl){
+      const target = activeBtn.offsetLeft - (filmEl.clientWidth / 2) + (activeBtn.clientWidth / 2);
+      filmEl.scrollTo({ left: target, behavior: 'smooth' });
+    }
   }
 
   // Backgrounds for the intro (name) and outro (contact) slides.
