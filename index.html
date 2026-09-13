@@ -277,24 +277,6 @@
   .nav-btn:active{ transform: translateY(0); }
   .nav-btn[disabled]{ opacity: 0.2; cursor:default; pointer-events:none; transform:none; }
 
-  /* ---------- MEDIA TOGGLE (hide text / centre media) ---------- */
-  /* Sits inline just above the project title (not fixed to the viewport)
-     so it scrolls with each project and never overlaps the fixed
-     "Contact Me" button in the corner. */
-  .media-toggle-btn{
-    position: relative; z-index: 6; margin-bottom: 10px;
-    width: 34px; height: 34px; border-radius: 50%;
-    border: 1px solid rgba(245,245,245,0.35);
-    background: rgba(0,0,0,0.32);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    color: var(--text);
-    display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition: all .2s ease;
-  }
-  .media-toggle-btn svg{ width: 16px; height: 16px; stroke: currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  .media-toggle-btn:hover{ background: rgba(245,245,245,0.16); border-color: var(--accent); transform: translateY(-2px); }
-  .media-toggle-btn:active{ transform: translateY(0); }
-
   /* Text pieces animate out (slide down + fade) when hidden, and reverse
      back in (slide up + fade) when shown again — display stays "block" the
      whole time so the transition can actually play. The filmstrip is
@@ -323,10 +305,9 @@
      (plenty of open space beside the text) but not on phone (the stacked
      column layout leaves almost no gap). Make the whole content block
      click/touch-transparent, then explicitly re-enable just the filmstrip
-     and the toggle button. */
+     so it stays usable while the text is hidden. */
   section.project.text-hidden .project-content{ pointer-events: none; }
-  section.project.text-hidden .filmstrip-row,
-  section.project.text-hidden .media-toggle-btn{ pointer-events: auto; }
+  section.project.text-hidden .filmstrip-row{ pointer-events: auto; }
   /* give the filmstrip a subtle glass backing once it's floating over the
      now-unscrimmed media on its own */
   .filmstrip-row{ transition: background .4s ease, padding .4s ease; border-radius: 10px; }
@@ -500,9 +481,6 @@
     }
   ];
 
-  const EYE_ICON = `<svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`;
-  const EYE_OFF_ICON = `<svg viewBox="0 0 24 24"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a20.3 20.3 0 0 1 4.22-5.06M9.9 4.24A10.8 10.8 0 0 1 12 4c7 0 11 8 11 8a20.4 20.4 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
-
   const scroller = document.getElementById('scroller');
   const rail = document.getElementById('rail');
   const outroSection = document.getElementById('outroSection');
@@ -620,7 +598,6 @@
     const downIcon = `<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>`;
     const prevRow = `<div class="section-nav nav-top"><button class="nav-btn" data-nav="prev" aria-label="Previous project">${upIcon}</button></div>`;
     const nextRow = `<div class="section-nav nav-bottom"><button class="nav-btn" data-nav="next" aria-label="Next project">${downIcon}</button></div>`;
-    const mediaToggleRow = `<button class="media-toggle-btn" data-action="toggle-text" aria-label="Hide text">${EYE_OFF_ICON}</button>`;
 
     section.innerHTML = `
       <div class="bg-photo" id="bg-${i}"><div class="bg-layer bg-layer-cover"></div><div class="bg-layer bg-layer-full"></div></div>
@@ -628,7 +605,6 @@
       ${prevRow}
       <div class="project-content">
         <div class="project-text">
-          ${mediaToggleRow}
           <div class="project-title">${p.title}</div>
           <div class="project-desc">${p.desc}</div>
           <div class="project-meta">${p.meta}</div>
@@ -641,7 +617,9 @@
     scroller.insertBefore(section, outroSection);
     renderBg('bg-' + i, p.media[0], 0);
 
-    if(p.media.length > 1){
+    const hasMultipleMedia = p.media.length > 1;
+
+    if(hasMultipleMedia){
       const filmEl = section.querySelector('.filmstrip');
       const rowEl = section.querySelector('.filmstrip-row');
       const prevBtn = rowEl.querySelector('.fs-prev');
@@ -658,80 +636,101 @@
       nextBtn.addEventListener('click', () => filmEl.scrollBy({ left: 220, behavior: 'smooth' }));
       requestAnimationFrame(updateArrows);
 
-      // Swipe/drag on the media itself (not just the filmstrip) to move
-      // between items — only enabled once the text is hidden, so it never
-      // steals horizontal drags away from the filmstrip/links while the
-      // text overlay is showing. Vertical drags are always left alone so
-      // the page's section-to-section scroll-snap still works.
-      const mediaEl = section.querySelector('.bg-photo');
-      const SWIPE_THRESHOLD = 40;
-      let drag = null;
-      let swipeBusy = false; // true while a slide-out/slide-in settle is in flight
-
-      const currentIndex = () => +section.querySelector('.filmstrip button.active').dataset.media;
-
-      mediaEl.addEventListener('pointerdown', (e) => {
-        if(!section.classList.contains('text-hidden') || swipeBusy) return;
-        if(e.pointerType === 'mouse' && e.button !== 0) return;
-        drag = { id: e.pointerId, startX: e.clientX, startY: e.clientY, axis: null };
+      // Clicking anywhere on the filmstrip's own background (not on a
+      // thumbnail or an arrow, which have their own jobs) hides the text —
+      // it's the "media bar" half of the tap-to-hide gesture. It never
+      // brings the text back; that's reserved for tapping the media itself.
+      rowEl.addEventListener('click', (e) => {
+        if(e.target.closest('.filmstrip button, .fs-arrow')) return;
+        section.classList.add('text-hidden');
       });
-      mediaEl.addEventListener('pointermove', (e) => {
-        if(!drag || drag.id !== e.pointerId) return;
-        const dx = e.clientX - drag.startX;
-        const dy = e.clientY - drag.startY;
-        if(drag.axis === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)){
-          drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-          if(drag.axis === 'x'){
-            mediaEl.setPointerCapture(e.pointerId);
-            mediaEl.classList.add('is-dragging');
-          }
-        }
-        if(drag.axis === 'x'){
-          e.preventDefault();
-          // live 1:1 tracking of the finger/cursor — this is what makes it
-          // feel like an actual swipe instead of a delayed toggle
-          mediaEl.style.transform = `translateX(${dx}px)`;
-        }
-      });
-      const endDrag = (e) => {
-        if(!drag || drag.id !== e.pointerId){ drag = null; return; }
-        if(drag.axis === 'x'){
-          const dx = e.clientX - drag.startX;
-          mediaEl.classList.remove('is-dragging'); // re-enable eased transform transition
-          if(Math.abs(dx) > SWIPE_THRESHOLD){
-            swipeBusy = true;
-            const dir = dx < 0 ? 1 : -1; // swiped left -> next item
-            const next = (currentIndex() + dir + p.media.length) % p.media.length;
-            const width = mediaEl.clientWidth || window.innerWidth;
-            const exitX = -dir * width;
-            // carry the current image the rest of the way off-screen in the
-            // direction it was already being dragged
-            mediaEl.style.transform = `translateX(${exitX}px)`;
-            const onExit = (ev) => {
-              if(ev.target !== mediaEl || ev.propertyName !== 'transform') return;
-              mediaEl.removeEventListener('transitionend', onExit);
-              // element is fully off-screen right now — swap the content
-              // instantly (no crossfade/delay) and snap the position back to
-              // center in the same tick, so nothing old is ever visible
-              // again before the new item appears
-              mediaEl.classList.add('is-dragging');
-              setActiveMedia(i, next, { instant: true });
-              mediaEl.style.transform = 'translateX(0)';
-              void mediaEl.offsetWidth; // force reflow so the jump is instant
-              mediaEl.classList.remove('is-dragging');
-              swipeBusy = false;
-            };
-            mediaEl.addEventListener('transitionend', onExit);
-          } else {
-            // didn't clear the threshold — spring back to center
-            mediaEl.style.transform = 'translateX(0)';
-          }
-        }
-        drag = null;
-      };
-      mediaEl.addEventListener('pointerup', endDrag);
-      mediaEl.addEventListener('pointercancel', endDrag);
     }
+
+    // Tap the media itself to hide the text, and tap it again to bring the
+    // text back. On multi-media projects the same element also drives the
+    // swipe-between-items gesture (once the text is already hidden), so a
+    // "tap" here specifically means a pointer down/up with negligible
+    // movement in between — anything that moves further is treated as a
+    // drag/swipe instead, never as a toggle. Vertical drags are always left
+    // alone so the page's section-to-section scroll-snap still works.
+    const mediaEl = section.querySelector('.bg-photo');
+    const TAP_MOVE_TOLERANCE = 8;
+    const SWIPE_THRESHOLD = 40;
+    let drag = null;
+    let swipeBusy = false; // true while a slide-out/slide-in settle is in flight
+
+    const currentIndex = () => hasMultipleMedia ? +section.querySelector('.filmstrip button.active').dataset.media : 0;
+
+    mediaEl.addEventListener('pointerdown', (e) => {
+      if(swipeBusy) return;
+      if(e.pointerType === 'mouse' && e.button !== 0) return;
+      drag = { id: e.pointerId, startX: e.clientX, startY: e.clientY, axis: null, sliding: false };
+    });
+    mediaEl.addEventListener('pointermove', (e) => {
+      if(!drag || drag.id !== e.pointerId) return;
+      const dx = e.clientX - drag.startX;
+      const dy = e.clientY - drag.startY;
+      if(drag.axis === null && (Math.abs(dx) > TAP_MOVE_TOLERANCE || Math.abs(dy) > TAP_MOVE_TOLERANCE)){
+        drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        // only an already-hidden, multi-item project turns a horizontal
+        // drag into an actual slide — otherwise it's just not a tap anymore
+        if(drag.axis === 'x' && hasMultipleMedia && section.classList.contains('text-hidden')){
+          drag.sliding = true;
+          mediaEl.setPointerCapture(e.pointerId);
+          mediaEl.classList.add('is-dragging');
+        }
+      }
+      if(drag.sliding){
+        e.preventDefault();
+        // live 1:1 tracking of the finger/cursor — this is what makes it
+        // feel like an actual swipe instead of a delayed toggle
+        mediaEl.style.transform = `translateX(${dx}px)`;
+      }
+    });
+    const endDrag = (e) => {
+      if(!drag || drag.id !== e.pointerId){ drag = null; return; }
+      if(drag.sliding){
+        const dx = e.clientX - drag.startX;
+        mediaEl.classList.remove('is-dragging'); // re-enable eased transform transition
+        if(Math.abs(dx) > SWIPE_THRESHOLD){
+          swipeBusy = true;
+          const dir = dx < 0 ? 1 : -1; // swiped left -> next item
+          const next = (currentIndex() + dir + p.media.length) % p.media.length;
+          const width = mediaEl.clientWidth || window.innerWidth;
+          const exitX = -dir * width;
+          // carry the current image the rest of the way off-screen in the
+          // direction it was already being dragged
+          mediaEl.style.transform = `translateX(${exitX}px)`;
+          const onExit = (ev) => {
+            if(ev.target !== mediaEl || ev.propertyName !== 'transform') return;
+            mediaEl.removeEventListener('transitionend', onExit);
+            // element is fully off-screen right now — swap the content
+            // instantly (no crossfade/delay) and snap the position back to
+            // center in the same tick, so nothing old is ever visible
+            // again before the new item appears
+            mediaEl.classList.add('is-dragging');
+            setActiveMedia(i, next, { instant: true });
+            mediaEl.style.transform = 'translateX(0)';
+            void mediaEl.offsetWidth; // force reflow so the jump is instant
+            mediaEl.classList.remove('is-dragging');
+            swipeBusy = false;
+          };
+          mediaEl.addEventListener('transitionend', onExit);
+        } else {
+          // didn't clear the threshold — spring back to center
+          mediaEl.style.transform = 'translateX(0)';
+        }
+      } else if(drag.axis === null){
+        // negligible movement in any direction — a genuine tap, not a
+        // scroll or a swipe — so toggle the text. A vertical drag (the
+        // user panning to the next/previous section) deliberately does
+        // NOT toggle anything here.
+        section.classList.toggle('text-hidden');
+      }
+      drag = null;
+    };
+    mediaEl.addEventListener('pointerup', endDrag);
+    mediaEl.addEventListener('pointercancel', endDrag);
 
     makeDot(section, p.title, false);
   });
@@ -750,14 +749,6 @@
   }
 
   scroller.addEventListener('click', (e) => {
-    const toggleBtn = e.target.closest('.media-toggle-btn');
-    if(toggleBtn){
-      const section = toggleBtn.closest('section.project');
-      const hidden = section.classList.toggle('text-hidden');
-      toggleBtn.setAttribute('aria-label', hidden ? 'Show text' : 'Hide text');
-      toggleBtn.innerHTML = hidden ? EYE_ICON : EYE_OFF_ICON;
-      return;
-    }
     const navBtn = e.target.closest('.nav-btn');
     if(navBtn){
       if(navBtn.disabled) return;
@@ -783,11 +774,6 @@
         // leaving a project while it's in "media view" — reset it back to
         // text mode so it's always found showing text on return
         entry.target.classList.remove('text-hidden');
-        const toggleBtn = entry.target.querySelector('.media-toggle-btn');
-        if(toggleBtn){
-          toggleBtn.setAttribute('aria-label', 'Hide text');
-          toggleBtn.innerHTML = EYE_OFF_ICON;
-        }
       }
     });
   }, { threshold: 0.6 });
