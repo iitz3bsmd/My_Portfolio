@@ -213,11 +213,8 @@
     font-size: 10px;
     letter-spacing: 0.04em;
     color: var(--text-muted);
-    opacity: 0;
+    opacity: 0.85;
     transition: opacity .35s ease;
-  }
-  @media (max-width: 780px){
-    .click-hint{ opacity: 0.85; }
   }
   .click-hint::before{
     content:"";
@@ -226,7 +223,7 @@
     transform: translate(-50%,-50%);
     width: 90px; height: 40px;
     border-radius: 6px;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,0.45);
     filter: blur(6px);
     z-index:-1;
     pointer-events:none;
@@ -826,7 +823,12 @@
     }
     const btn = e.target.closest('.filmstrip button');
     if(!btn) return;
-    setActiveMedia(+btn.dataset.proj, +btn.dataset.media);
+    const proj = +btn.dataset.proj;
+    setActiveMedia(proj, +btn.dataset.media);
+    const section = document.getElementById('proj-' + proj);
+    section.classList.add('text-hidden');
+    section.classList.add('hint-seen');
+    document.body.classList.add('hints-dismissed');
   });
 
   const observer = new IntersectionObserver((entries) => {
