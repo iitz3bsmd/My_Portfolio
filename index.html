@@ -117,7 +117,12 @@
   .bg-photo{
     position:absolute; inset:0;
     transition: opacity .5s ease, top .5s ease, bottom .5s ease;
+    touch-action: pan-y;
   }
+  /* the swipe/drag gesture on the media is only active once the text is
+     hidden (see JS) — cursor affordance matches that */
+  section.project.text-hidden .bg-photo{ cursor: grab; }
+  section.project.text-hidden .bg-photo.is-dragging{ cursor: grabbing; }
   /* Two stacked layers so switching to/from the "hide text" view is a smooth
      opacity crossfade instead of an abrupt background-size/object-fit jump
      (those don't interpolate reliably across browsers). -cover is the
@@ -546,6 +551,24 @@
     }
   }
 
+  // Switches a project to a given media index: crossfades the background,
+  // and syncs the filmstrip's active thumbnail (scrolling it into view).
+  // Shared by filmstrip clicks and swiping/dragging on the media itself.
+  function setActiveMedia(proj, mediaIdx){
+    const bg = document.getElementById('bg-' + proj);
+    bg.style.opacity = 0;
+    setTimeout(() => {
+      renderBg('bg-' + proj, PROJECTS[proj].media[mediaIdx], mediaIdx);
+      bg.style.opacity = 1;
+    }, 180);
+    const section = document.getElementById('proj-' + proj);
+    section.querySelectorAll('.filmstrip button').forEach(b => {
+      b.classList.toggle('active', +b.dataset.media === mediaIdx);
+    });
+    const activeBtn = section.querySelector(`.filmstrip button[data-media="${mediaIdx}"]`);
+    if(activeBtn) activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }
+
   // Backgrounds for the intro (name) and outro (contact) slides.
   // Set type:'video' and a src to use a video instead of an image, same as project media.
   const INTRO_MEDIA = { type: 'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/481060675_1743213683260333_2111703777342603916_n.jpg?raw=true" };
@@ -609,6 +632,51 @@
       prevBtn.addEventListener('click', () => filmEl.scrollBy({ left: -220, behavior: 'smooth' }));
       nextBtn.addEventListener('click', () => filmEl.scrollBy({ left: 220, behavior: 'smooth' }));
       requestAnimationFrame(updateArrows);
+
+      // Swipe/drag on the media itself (not just the filmstrip) to move
+      // between items — only enabled once the text is hidden, so it never
+      // steals horizontal drags away from the filmstrip/links while the
+      // text overlay is showing. Vertical drags are always left alone so
+      // the page's section-to-section scroll-snap still works.
+      const mediaEl = section.querySelector('.bg-photo');
+      const SWIPE_THRESHOLD = 40;
+      let drag = null;
+
+      const currentIndex = () => +section.querySelector('.filmstrip button.active').dataset.media;
+
+      mediaEl.addEventListener('pointerdown', (e) => {
+        if(!section.classList.contains('text-hidden')) return;
+        if(e.pointerType === 'mouse' && e.button !== 0) return;
+        drag = { id: e.pointerId, startX: e.clientX, startY: e.clientY, axis: null };
+      });
+      mediaEl.addEventListener('pointermove', (e) => {
+        if(!drag || drag.id !== e.pointerId) return;
+        const dx = e.clientX - drag.startX;
+        const dy = e.clientY - drag.startY;
+        if(drag.axis === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)){
+          drag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+          if(drag.axis === 'x'){
+            mediaEl.setPointerCapture(e.pointerId);
+            mediaEl.classList.add('is-dragging');
+          }
+        }
+        if(drag.axis === 'x') e.preventDefault();
+      });
+      const endDrag = (e) => {
+        if(!drag || drag.id !== e.pointerId){ drag = null; return; }
+        if(drag.axis === 'x'){
+          const dx = e.clientX - drag.startX;
+          if(Math.abs(dx) > SWIPE_THRESHOLD){
+            const dir = dx < 0 ? 1 : -1; // swiped left -> next item
+            const next = (currentIndex() + dir + p.media.length) % p.media.length;
+            setActiveMedia(i, next);
+          }
+        }
+        mediaEl.classList.remove('is-dragging');
+        drag = null;
+      };
+      mediaEl.addEventListener('pointerup', endDrag);
+      mediaEl.addEventListener('pointercancel', endDrag);
     }
 
     makeDot(section, p.title, false);
@@ -646,16 +714,7 @@
     }
     const btn = e.target.closest('.filmstrip button');
     if(!btn) return;
-    const proj = +btn.dataset.proj;
-    const mediaIdx = +btn.dataset.media;
-    const bg = document.getElementById('bg-' + proj);
-    bg.style.opacity = 0;
-    setTimeout(() => {
-      renderBg('bg-' + proj, PROJECTS[proj].media[mediaIdx], mediaIdx);
-      bg.style.opacity = 1;
-    }, 180);
-    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    setActiveMedia(+btn.dataset.proj, +btn.dataset.media);
   });
 
   const observer = new IntersectionObserver((entries) => {
