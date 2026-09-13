@@ -116,14 +116,27 @@
 
   .bg-photo{
     position:absolute; inset:0;
-    background-size: cover; background-position: center; background-repeat: no-repeat;
-    transition: opacity .5s ease, top .5s ease, bottom .5s ease, background-size .5s ease;
+    transition: opacity .5s ease, top .5s ease, bottom .5s ease;
   }
-  .bg-photo video{
+  /* Two stacked layers so switching to/from the "hide text" view is a smooth
+     opacity crossfade instead of an abrupt background-size/object-fit jump
+     (those don't interpolate reliably across browsers). -cover is the
+     default zoomed/cropped-to-fill look; -full shows the whole image or
+     video at its true, uncropped aspect ratio (letterboxed). */
+  .bg-layer{
+    position:absolute; inset:0;
+    background-position: center; background-repeat: no-repeat;
+    transition: opacity .5s ease;
+  }
+  .bg-layer-cover{ background-size: cover; opacity: 1; }
+  .bg-layer-full{ background-size: contain; opacity: 0; }
+  .bg-layer video{
     position:absolute; inset:0; width:100%; height:100%;
-    object-fit: cover;
-    transition: object-fit .5s ease;
   }
+  .bg-layer-cover video{ object-fit: cover; }
+  .bg-layer-full video{ object-fit: contain; }
+  section.project.text-hidden .bg-layer-cover{ opacity: 0; }
+  section.project.text-hidden .bg-layer-full{ opacity: 1; }
   .filmstrip button{ position: relative; }
   .filmstrip .thumb-play{
     position:absolute; bottom:4px; right:4px;
@@ -273,8 +286,10 @@
 
   /* Text pieces animate out (slide down + fade) when hidden, and reverse
      back in (slide up + fade) when shown again — display stays "block" the
-     whole time so the transition can actually play. */
-  .project-title, .project-desc, .project-meta, .project-link, .filmstrip-row{
+     whole time so the transition can actually play. The filmstrip is
+     deliberately left out of this list: it stays visible and scrollable so
+     the other media can still be browsed while the text is hidden. */
+  .project-title, .project-desc, .project-meta, .project-link{
     opacity: 1;
     transform: translateY(0);
     transition: opacity .4s ease, transform .4s ease;
@@ -282,8 +297,7 @@
   section.project.text-hidden .project-title,
   section.project.text-hidden .project-desc,
   section.project.text-hidden .project-meta,
-  section.project.text-hidden .project-link,
-  section.project.text-hidden .filmstrip-row{
+  section.project.text-hidden .project-link{
     opacity: 0;
     transform: translateY(28px);
     pointer-events: none;
@@ -291,10 +305,14 @@
   /* both dark gradient layers fade out together with the text */
   section.project.text-hidden .bg-scrim{ opacity: 0; }
   section.project.text-hidden .project-content::before{ opacity: 0; }
-  /* show the media at its true, uncropped scale (letterboxed rather than
-     zoomed/cover-cropped) so nothing of the photo or video is cut off */
-  section.project.text-hidden .bg-photo{ background-size: contain; }
-  section.project.text-hidden .bg-photo video{ object-fit: contain; }
+  /* give the filmstrip a subtle glass backing once it's floating over the
+     now-unscrimmed media on its own */
+  .filmstrip-row{ transition: background .4s ease, padding .4s ease; border-radius: 10px; }
+  section.project.text-hidden .filmstrip-row{
+    background: rgba(0,0,0,0.35);
+    padding: 8px 10px;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
 
   /* ---------- SCROLL CUE (first section only) ---------- */
   .scroll-cue{
@@ -357,8 +375,7 @@
        a bit so cover doesn't need to zoom in as aggressively on tall phone
        screens, and push the visible band up into the gap between the header
        and the text block so the text doesn't sit on top of it. */
-    section.project .bg-photo{ top: 8%; bottom: 42%; background-size: cover; }
-    section.project .bg-photo video{ object-fit: cover; }
+    section.project .bg-photo{ top: 8%; bottom: 42%; }
     /* "Hide text" mode: text is gone, so let the media fill the whole
        section again, centered. */
     section.project.text-hidden .bg-photo{ top: 0; bottom: 0; }
@@ -509,17 +526,23 @@
 
   function renderBg(targetId, item, variant){
     const bg = document.getElementById(targetId);
+    const coverEl = bg.querySelector('.bg-layer-cover');
+    const fullEl = bg.querySelector('.bg-layer-full');
+    // Project sections have two stacked layers (cover + full) to crossfade
+    // between; the intro/outro slides are still a single plain div.
+    const targets = coverEl && fullEl ? [coverEl, fullEl] : [bg];
+    targets.forEach(el => { el.innerHTML = ''; el.style.backgroundImage = 'none'; });
     if(item.type === 'video'){
       if(item.src){
-        bg.style.backgroundImage = 'none';
-        bg.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
+        targets.forEach(el => {
+          el.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
+        });
       } else {
-        bg.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
-        bg.innerHTML = '';
+        targets.forEach(el => { el.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)'; });
       }
     } else {
-      bg.style.backgroundImage = mediaBackground(item, variant);
-      bg.innerHTML = '';
+      const img = mediaBackground(item, variant);
+      targets.forEach(el => { el.style.backgroundImage = img; });
     }
   }
 
@@ -552,7 +575,7 @@
     const mediaToggleRow = `<button class="media-toggle-btn" data-action="toggle-text" aria-label="Hide text">${EYE_OFF_ICON}</button>`;
 
     section.innerHTML = `
-      <div class="bg-photo" id="bg-${i}"></div>
+      <div class="bg-photo" id="bg-${i}"><div class="bg-layer bg-layer-cover"></div><div class="bg-layer bg-layer-full"></div></div>
       <div class="bg-scrim"></div>
       ${prevRow}
       <div class="project-content">
