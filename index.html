@@ -37,6 +37,7 @@
     font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.05em;
     color: var(--text); mix-blend-mode: difference;
     display:flex; align-items:center; gap:8px;
+    cursor: pointer; background: none; border: none; padding: 0;
   }
   .intro-mark .sq{ width:7px; height:7px; background: var(--accent); }
 
@@ -418,7 +419,7 @@
 </head>
 <body>
 
-<div class="intro-mark"><span class="sq"></span>PORTFOLIO</div>
+<button class="intro-mark" id="introMark" aria-label="Back to top"><span class="sq"></span>PORTFOLIO</button>
 <button class="contact-btn" id="contactBtn">Contact Me</button>
 
 <div class="rail rail-hidden" id="rail"></div>
@@ -570,13 +571,21 @@
   // Switches a project to a given media index: crossfades the background,
   // and syncs the filmstrip's active thumbnail (scrolling it into view).
   // Shared by filmstrip clicks and swiping/dragging on the media itself.
-  function setActiveMedia(proj, mediaIdx){
+  function setActiveMedia(proj, mediaIdx, opts){
     const bg = document.getElementById('bg-' + proj);
-    bg.style.opacity = 0;
-    setTimeout(() => {
+    if(opts && opts.instant){
+      // swipe path: the element is off-screen (mid-slide) when this runs, so
+      // swap the content immediately with no opacity fade — a delayed swap
+      // here is what caused the previous item to flash back into view once
+      // the slide position was reset.
       renderBg('bg-' + proj, PROJECTS[proj].media[mediaIdx], mediaIdx);
-      bg.style.opacity = 1;
-    }, 180);
+    } else {
+      bg.style.opacity = 0;
+      setTimeout(() => {
+        renderBg('bg-' + proj, PROJECTS[proj].media[mediaIdx], mediaIdx);
+        bg.style.opacity = 1;
+      }, 180);
+    }
     const section = document.getElementById('proj-' + proj);
     section.querySelectorAll('.filmstrip button').forEach(b => {
       b.classList.toggle('active', +b.dataset.media === mediaIdx);
@@ -701,10 +710,12 @@
             const onExit = (ev) => {
               if(ev.target !== mediaEl || ev.propertyName !== 'transform') return;
               mediaEl.removeEventListener('transitionend', onExit);
-              setActiveMedia(i, next); // swaps + crossfades the media itself
-              // snap instantly back to center (no transition) so the next
-              // gesture starts clean, without a visible reverse-slide
+              // element is fully off-screen right now — swap the content
+              // instantly (no crossfade/delay) and snap the position back to
+              // center in the same tick, so nothing old is ever visible
+              // again before the new item appears
               mediaEl.classList.add('is-dragging');
+              setActiveMedia(i, next, { instant: true });
               mediaEl.style.transform = 'translateX(0)';
               void mediaEl.offsetWidth; // force reflow so the jump is instant
               mediaEl.classList.remove('is-dragging');
@@ -785,6 +796,10 @@
 
   document.getElementById('contactBtn').addEventListener('click', () => {
     outroSection.scrollIntoView({ behavior: 'smooth' });
+  });
+
+  document.getElementById('introMark').addEventListener('click', () => {
+    introSlide.scrollIntoView({ behavior: 'smooth' });
   });
 </script>
 
