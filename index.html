@@ -42,7 +42,7 @@
 
   /* ---------- CONTACT BUTTON ---------- */
   .contact-btn{
-    position: fixed; top: 26px; right: 32px; z-index: 40;
+    position: fixed; top: 20px; right: 32px; z-index: 40;
     font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em;
     color: var(--text); background: transparent;
     border: 1px solid rgba(245,245,245,0.4);
@@ -310,6 +310,17 @@
   /* both dark gradient layers fade out together with the text */
   section.project.text-hidden .bg-scrim{ opacity: 0; }
   section.project.text-hidden .project-content::before{ opacity: 0; }
+  /* The text lines fade out but keep their layout box (so the animation can
+     play), which on phone-width layouts can span most of the lower half of
+     the screen. Without this, that invisible box still catches touches
+     before they reach the media, which is why swiping worked on desktop
+     (plenty of open space beside the text) but not on phone (the stacked
+     column layout leaves almost no gap). Make the whole content block
+     click/touch-transparent, then explicitly re-enable just the filmstrip
+     and the toggle button. */
+  section.project.text-hidden .project-content{ pointer-events: none; }
+  section.project.text-hidden .filmstrip-row,
+  section.project.text-hidden .media-toggle-btn{ pointer-events: auto; }
   /* give the filmstrip a subtle glass backing once it's floating over the
      now-unscrimmed media on its own */
   .filmstrip-row{ transition: background .4s ease, padding .4s ease; border-radius: 10px; }
