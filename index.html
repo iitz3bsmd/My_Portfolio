@@ -117,11 +117,12 @@
   .bg-photo{
     position:absolute; inset:0;
     background-size: cover; background-position: center; background-repeat: no-repeat;
-    transition: opacity .5s ease;
+    transition: opacity .5s ease, top .5s ease, bottom .5s ease, background-size .5s ease;
   }
   .bg-photo video{
     position:absolute; inset:0; width:100%; height:100%;
     object-fit: cover;
+    transition: object-fit .5s ease;
   }
   .filmstrip button{ position: relative; }
   .filmstrip .thumb-play{
@@ -139,6 +140,8 @@
     position:absolute; inset:0;
     background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 32%, transparent 42%, var(--scrim-mid) 62%, var(--scrim-bottom) 82%, var(--scrim-bottom) 100%);
     pointer-events:none;
+    opacity: 1;
+    transition: opacity .4s ease;
   }
   /* Extra focused darkening directly behind the title/description block,
      layered above bg-scrim so text stays legible over busy photos */
@@ -150,6 +153,8 @@
     background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.85) 100%);
     z-index:-1;
     pointer-events:none;
+    opacity: 1;
+    transition: opacity .4s ease;
   }
 
   .project-content{
@@ -266,17 +271,30 @@
   .media-toggle-btn:hover{ background: rgba(245,245,245,0.16); border-color: var(--accent); transform: translateY(-2px); }
   .media-toggle-btn:active{ transform: translateY(0); }
 
-  /* when active, the title/desc/meta/link/filmstrip are hidden and the scrim
-     is lightened so the media (now filling the section, see mobile rule
-     above) reads clearly and sits centred with nothing covering it. The
-     toggle button itself stays put (in the same spot, above where the
-     title was) so it can be tapped again to bring the text back. */
+  /* Text pieces animate out (slide down + fade) when hidden, and reverse
+     back in (slide up + fade) when shown again — display stays "block" the
+     whole time so the transition can actually play. */
+  .project-title, .project-desc, .project-meta, .project-link, .filmstrip-row{
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity .4s ease, transform .4s ease;
+  }
   section.project.text-hidden .project-title,
   section.project.text-hidden .project-desc,
   section.project.text-hidden .project-meta,
   section.project.text-hidden .project-link,
-  section.project.text-hidden .filmstrip-row{ display:none; }
-  section.project.text-hidden .bg-scrim{ opacity: 0.32; }
+  section.project.text-hidden .filmstrip-row{
+    opacity: 0;
+    transform: translateY(28px);
+    pointer-events: none;
+  }
+  /* both dark gradient layers fade out together with the text */
+  section.project.text-hidden .bg-scrim{ opacity: 0; }
+  section.project.text-hidden .project-content::before{ opacity: 0; }
+  /* show the media at its true, uncropped scale (letterboxed rather than
+     zoomed/cover-cropped) so nothing of the photo or video is cut off */
+  section.project.text-hidden .bg-photo{ background-size: contain; }
+  section.project.text-hidden .bg-photo video{ object-fit: contain; }
 
   /* ---------- SCROLL CUE (first section only) ---------- */
   .scroll-cue{
