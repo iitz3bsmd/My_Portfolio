@@ -139,13 +139,16 @@
     background-position: center; background-repeat: no-repeat;
     transition: opacity .5s ease;
   }
-  .bg-layer-cover{ background-size: cover; opacity: 1; }
-  .bg-layer-full{ background-size: contain; opacity: 0; }
+  .bg-layer-cover{ z-index: 2; background-size: cover; opacity: 1; }
+  .bg-layer-full{ z-index: 3; background-size: contain; opacity: 0; }
   /* Fills the letterbox bars behind the "full" (contain) layer with the same
      media, scaled to cover and heavily blurred, instead of leaving the plain
      dark section background showing — project sections only; intro/outro
-     stay a single plain layer and are unaffected. */
+     stay a single plain layer and are unaffected. Sits behind both the cover
+     and full layers at all times via z-index, so it never shows through the
+     opaque cover image while the text view is active. */
   .bg-layer-blur{
+    z-index: 1;
     background-size: cover;
     opacity: 1;
     filter: blur(40px) brightness(0.65);
