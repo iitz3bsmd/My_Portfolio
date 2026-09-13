@@ -207,8 +207,8 @@
     position:absolute;
     left:50%; top:50%;
     transform: translate(-50%,-50%);
-    width: 160px; height: 64px;
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0) 72%);
+    width: 54px; height: 54px;
+    background: rgba(0,0,0,0.8);
     z-index:-1;
     pointer-events:none;
   }
@@ -322,6 +322,9 @@
     opacity: 0;
   }
   section.project.hint-seen .click-hint{
+    opacity: 0;
+  }
+  body.hints-dismissed .click-hint{
     opacity: 0;
   }
   /* both dark gradient layers fade out together with the text */
@@ -674,6 +677,7 @@
         if(e.target.closest('.filmstrip button, .fs-arrow')) return;
         section.classList.add('text-hidden');
         section.classList.add('hint-seen');
+        document.body.classList.add('hints-dismissed');
       });
     }
 
@@ -758,6 +762,7 @@
         // NOT toggle anything here.
         section.classList.toggle('text-hidden');
         section.classList.add('hint-seen');
+        document.body.classList.add('hints-dismissed');
       }
       drag = null;
     };
