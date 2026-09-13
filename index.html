@@ -186,9 +186,9 @@
   .project-content::before{
     content:"";
     position:absolute;
-    left:0; right:0; bottom:0;
+    left:0; right:0; bottom:-70px;
     top:-140px;
-    background: linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.85) 100%);
+    background: linear-gradient(180deg, transparent 0px, rgba(0,0,0,0.55) 70px, rgba(0,0,0,0.85) 140px);
     z-index:-1;
     pointer-events:none;
     opacity: 1;
@@ -213,8 +213,11 @@
     font-size: 10px;
     letter-spacing: 0.04em;
     color: var(--text-muted);
-    opacity: 0.85;
+    opacity: 0;
     transition: opacity .35s ease;
+  }
+  @media (max-width: 780px){
+    .click-hint{ opacity: 0.85; }
   }
   .click-hint::before{
     content:"";
@@ -460,7 +463,7 @@
     <div class="slide-content">
       <div class="eyebrow">Hello there!</div>
       <h1>I'm Abdussamad Mohammed</h1>
-      <p>And I design and build things for fun!<br> Here is some of my work.</p>
+      <p>I design and build things for fun. If it can be built, I'm building it! <br> Here is some of my work.</p>
     </div>
     <div class="section-nav nav-bottom">
       <button class="nav-btn" data-nav="next" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
