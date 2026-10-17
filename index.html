@@ -116,7 +116,7 @@
   }
 
   .bg-photo{
-    position:absolute; inset:0;
+    position:absolute; inset:0; z-index:0;
     background-size: cover; background-position: center;
     transition: opacity .5s ease, top .5s ease, bottom .5s ease, transform .34s cubic-bezier(.22,.61,.36,1);
     touch-action: pan-y;
@@ -124,6 +124,9 @@
   /* while actively dragging, the transform must follow the finger with zero
      lag — no eased transition — the eased transform transition above only
      kicks back in once the finger lifts (slide-out / snap-back / settle) */
+  /* project media sits in the band above the text; hiding the text lets it use the whole screen */
+  section.project .bg-photo{ top: 72px; bottom: 40%; }
+  section.project.text-hidden .bg-photo{ top: 0; bottom: 0; }
   .bg-photo.is-dragging{ transition: opacity .5s ease, top .5s ease, bottom .5s ease; }
   /* the swipe/drag gesture on the media is only active once the text is
      hidden (see JS) — cursor affordance matches that */
@@ -152,6 +155,8 @@
     z-index: 2;
     display:flex; align-items:center; justify-content:center;
   }
+  .bg-layer-media video{ opacity:0; transition: opacity .3s ease; }
+  .bg-layer-media video.ready{ opacity:1; }
   .bg-layer-media img, .bg-layer-media video{
     display:block;
     width:auto; height:auto;
@@ -176,7 +181,7 @@
     border-left: 6px solid #fff; margin-left: 2px;
   }
   .bg-scrim{
-    position:absolute; inset:0;
+    position:absolute; inset:0; z-index:1;
     background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 30%, transparent 38%, rgba(0,0,0,0.7) 58%, var(--scrim-bottom) 80%, var(--scrim-bottom) 100%);
     pointer-events:none;
     opacity: 1;
@@ -361,7 +366,7 @@
   /* background + readability scrim, shared by intro/outro slides */
   .slide-content{ position: relative; z-index: 5; margin: auto 0; }
   .bg-scrim-slide{
-    position:absolute; inset:0; pointer-events:none;
+    position:absolute; inset:0; z-index:1; pointer-events:none;
     background:
       linear-gradient(180deg, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.15) 35%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.75) 100%),
       linear-gradient(100deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.45) 40%, rgba(0,0,0,0.1) 70%);
@@ -547,6 +552,15 @@
       if(item.src){
         mediaEl.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
         blurEl.innerHTML = `<video muted playsinline preload="metadata" src="${item.src}#t=0.1"></video>`;
+        // only reveal the player once it really has a picture; if the file
+        // fails to load, fall back to a plain dark background instead of
+        // leaving an empty default-sized player box on screen
+        const vid = mediaEl.querySelector('video');
+        vid.addEventListener('loadeddata', () => vid.classList.add('ready'));
+        vid.addEventListener('error', () => {
+          vid.remove(); blurEl.innerHTML = '';
+          blurEl.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
+        });
       } else {
         blurEl.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
       }
