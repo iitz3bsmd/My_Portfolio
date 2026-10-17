@@ -129,24 +129,15 @@
      hidden (see JS) — cursor affordance matches that */
   section.project.text-hidden .bg-photo{ cursor: grab; }
   section.project.text-hidden .bg-photo.is-dragging{ cursor: grabbing; }
-  /* Two stacked layers so switching to/from the "hide text" view is a smooth
-     opacity crossfade instead of an abrupt background-size/object-fit jump
-     (those don't interpolate reliably across browsers). -cover is the
-     default zoomed/cropped-to-fill look; -full shows the whole image or
-     video at its true, uncropped aspect ratio (letterboxed). */
+  /* Project media is shown "contained": it keeps its true aspect ratio, is
+     never enlarged beyond its natural size, and is only scaled down when it
+     would not otherwise fit on screen. A blurred copy of the media fills the
+     empty space around it. Intro/outro slides are unaffected. */
   .bg-layer{
     position:absolute; inset:0;
     background-position: center; background-repeat: no-repeat;
     transition: opacity .5s ease;
   }
-  .bg-layer-cover{ z-index: 2; background-size: cover; opacity: 1; }
-  .bg-layer-full{ z-index: 3; background-size: contain; opacity: 0; }
-  /* Fills the letterbox bars behind the "full" (contain) layer with the same
-     media, scaled to cover and heavily blurred, instead of leaving the plain
-     dark section background showing — project sections only; intro/outro
-     stay a single plain layer and are unaffected. Sits behind both the cover
-     and full layers at all times via z-index, so it never shows through the
-     opaque cover image while the text view is active. */
   .bg-layer-blur{
     z-index: 1;
     background-size: cover;
@@ -154,14 +145,20 @@
     filter: blur(40px) brightness(0.65);
     transform: scale(1.15);
   }
-  .bg-layer video{
-    position:absolute; inset:0; width:100%; height:100%;
+  .bg-layer-blur video{
+    position:absolute; inset:0; width:100%; height:100%; object-fit: cover;
   }
-  .bg-layer-cover video{ object-fit: cover; }
-  .bg-layer-full video{ object-fit: contain; }
-  .bg-layer-blur video{ object-fit: cover; }
-  section.project.text-hidden .bg-layer-cover{ opacity: 0; }
-  section.project.text-hidden .bg-layer-full{ opacity: 1; }
+  .bg-layer-media{
+    z-index: 2;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .bg-layer-media img, .bg-layer-media video{
+    display:block;
+    width:auto; height:auto;
+    max-width:100%; max-height:100%;
+    object-fit: contain;
+    user-select:none; -webkit-user-select:none; -webkit-user-drag:none;
+  }
   .filmstrip button{ position: relative; overflow:hidden; background-color:#111; }
   .filmstrip button video{
     position:absolute; inset:0; width:100%; height:100%;
@@ -529,24 +526,35 @@
 
   function renderBg(targetId, item, variant){
     const bg = document.getElementById(targetId);
-    const coverEl = bg.querySelector('.bg-layer-cover');
+    const mediaEl = bg.querySelector('.bg-layer-media');
     const blurEl = bg.querySelector('.bg-layer-blur');
-    const fullEl = bg.querySelector('.bg-layer-full');
-    // Project sections have three stacked layers (cover + blur + full) to
-    // crossfade between; the intro/outro slides are still a single plain div.
-    const targets = coverEl && fullEl ? [coverEl, blurEl, fullEl].filter(Boolean) : [bg];
-    targets.forEach(el => { el.innerHTML = ''; el.style.backgroundImage = 'none'; });
+    if(!mediaEl){
+      // intro/outro slides: a single plain background layer (cover-style)
+      bg.innerHTML = ''; bg.style.backgroundImage = 'none';
+      if(item.type === 'video' && item.src){
+        bg.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
+      } else {
+        bg.style.backgroundImage = item.type === 'video' ? 'linear-gradient(160deg,#1a1a1a,#0a0a0a)' : mediaBackground(item, variant);
+      }
+      return;
+    }
+    // project slides: media sits contained in its own layer, with a blurred
+    // still copy behind it to fill the space around it
+    const idx = +targetId.replace('bg-', '');
+    const alt = (PROJECTS[idx] && PROJECTS[idx].title) || '';
+    mediaEl.innerHTML = ''; blurEl.innerHTML = ''; blurEl.style.backgroundImage = 'none';
     if(item.type === 'video'){
       if(item.src){
-        targets.forEach(el => {
-          el.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
-        });
+        mediaEl.innerHTML = `<video autoplay muted loop playsinline src="${item.src}"></video>`;
+        blurEl.innerHTML = `<video muted playsinline preload="metadata" src="${item.src}#t=0.1"></video>`;
       } else {
-        targets.forEach(el => { el.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)'; });
+        blurEl.style.backgroundImage = 'linear-gradient(160deg,#1a1a1a,#0a0a0a)';
       }
     } else {
-      const img = mediaBackground(item, variant);
-      targets.forEach(el => { el.style.backgroundImage = img; });
+      blurEl.style.backgroundImage = mediaBackground(item, variant);
+      if(item.src){
+        mediaEl.innerHTML = `<img src="${item.src}" alt="${alt}" draggable="false">`;
+      }
     }
   }
 
@@ -614,7 +622,7 @@
     const nextRow = `<div class="section-nav nav-bottom"><button class="nav-btn" data-nav="next" aria-label="Next project">${downIcon}</button></div>`;
 
     section.innerHTML = `
-      <div class="bg-photo" id="bg-${i}"><div class="bg-layer bg-layer-cover"></div><div class="bg-layer bg-layer-blur"></div><div class="bg-layer bg-layer-full"></div></div>
+      <div class="bg-photo" id="bg-${i}"><div class="bg-layer bg-layer-blur"></div><div class="bg-layer bg-layer-media"></div></div>
       <div class="bg-scrim"></div>
       ${prevRow}
       <div class="project-content">
