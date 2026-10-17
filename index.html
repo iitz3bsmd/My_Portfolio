@@ -41,17 +41,24 @@
   }
   .intro-mark .sq{ width:7px; height:7px; background: var(--accent); }
 
-  /* ---------- CONTACT BUTTON ---------- */
-  .contact-btn{
+  /* ---------- TOP-RIGHT BUTTONS (CV + CONTACT) ---------- */
+  .top-actions{
     position: fixed; top: 20px; right: 32px; z-index: 40;
-    font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.05em;
+    display:flex; align-items:center; gap: 10px;
+  }
+  .contact-btn{
+    font-family: var(--font-mono); font-size: 12px; line-height: 1.2; letter-spacing: 0.05em;
     color: var(--text); background: transparent;
     border: 1px solid rgba(245,245,245,0.4);
     padding: 8px 16px; cursor: pointer;
-    text-decoration: none; display:inline-block;
+    text-decoration: none; display:inline-flex; align-items:center; gap: 8px;
     transition: all .2s ease;
   }
   .contact-btn:hover{ background: rgba(245,245,245,0.1); border-color: rgba(245,245,245,0.8); }
+  /* the CV button is the filled, primary one */
+  .cv-btn{ background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 500; }
+  .cv-btn:hover{ background: #fff; border-color: #fff; }
+  .cv-btn svg{ width: 13px; height: 13px; stroke: currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
 
   /* ---------- SCROLL PROGRESS RAIL ---------- */
   .rail{
@@ -386,6 +393,11 @@
   }
 
   @media (max-width: 780px){
+    .top-actions{ right: 12px; gap: 6px; }
+    .contact-btn{ padding: 8px 10px; font-size: 11px; }
+    .cv-btn{ padding: 8px 9px; }
+    .cv-btn{ gap: 6px; }
+    .cv-btn .cv-long{ display:none; }
     .rail{ right: 12px; gap: 9px; }
     .rail button:not(.rail-arrow){ width: 5px; height: 5px; }
     .rail button.active:not(.rail-arrow){ width: 5px; height: 17px; border-radius: 3px; }
@@ -410,6 +422,12 @@
     .nav-btn{ width: 34px; height: 34px; }
   }
 
+  @media (max-width: 350px){
+    .cv-btn .cv-label{ display:none; }
+    .top-actions{ right: 8px; }
+    .contact-btn{ padding: 8px 8px; }
+  }
+
   @media (prefers-reduced-motion: reduce){
     .scroll-cue{ animation:none; }
     .bg-photo{ transition:none; }
@@ -419,7 +437,13 @@
 <body>
 
 <button class="intro-mark" id="introMark" aria-label="Back to top"><span class="sq"></span>PORTFOLIO</button>
-<button class="contact-btn" id="contactBtn">Contact Me</button>
+<div class="top-actions">
+  <!-- Put your CV (PDF) next to index.html with this exact name, or change the href/download below -->
+  <a class="contact-btn cv-btn" id="cvBtn" href="Abdussamad_Mohammed_CV.pdf" download="Abdussamad_Mohammed_CV.pdf" aria-label="Download CV">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg><span class="cv-label"><span class="cv-long">Download </span>CV</span>
+  </a>
+  <button class="contact-btn" id="contactBtn">Contact Me</button>
+</div>
 
 <div class="rail rail-hidden" id="rail"></div>
 
@@ -430,7 +454,7 @@
     <div class="slide-content">
       <div class="eyebrow">Hello there!</div>
       <h1>I'm Abdussamad Mohammed</h1>
-      <p>I design and build things for fun. If it can be built, I'm building it! <br> Here is some of my work.</p>
+      <p>I design and build things for fun. If it can be built, I'm on it! <br> Here is some of my work.</p>
     </div>
     <div class="section-nav nav-bottom">
       <button class="nav-btn" data-nav="next" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
@@ -447,6 +471,7 @@
       <div class="outro-label">Well, This is the end. Or it could be the beginning!</div>
       <h2>If you like what I do, Don't hesitate to get in touch.</h2>
       <div class="outro-links">
+        <a href="Abdussamad_Mohammed_CV.pdf" download="Abdussamad_Mohammed_CV.pdf">Download CV</a>
         <a href="mailto:AbdussamadMoh1@gmail.com">AbdussamadMoh1@gmail.com</a>
         <a href="https://github.com/iitz3bsmd">GitHub</a>
         <a href="https://www.linkedin.com/in/abdussamadmoh/">LinkedIn</a>
