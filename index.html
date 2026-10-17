@@ -118,13 +118,23 @@
   .bg-photo{
     position:absolute; inset:0; z-index:0;
     background-size: cover; background-position: center;
-    transition: opacity .5s ease, top .5s ease, bottom .5s ease, transform .34s cubic-bezier(.22,.61,.36,1);
+    transition: opacity .5s ease, top .5s ease, bottom .5s ease, left .5s ease, right .5s ease, transform .34s cubic-bezier(.22,.61,.36,1);
     touch-action: pan-y;
   }
   /* while actively dragging, the transform must follow the finger with zero
      lag — no eased transition — the eased transform transition above only
      kicks back in once the finger lifts (slide-out / snap-back / settle) */
-  .bg-photo.is-dragging{ transition: opacity .5s ease, top .5s ease, bottom .5s ease; }
+  /* project media sits in a padded band above the text; hiding the text lets it use the whole screen */
+  section.project .bg-photo{ top: 72px; bottom: 40%; }
+  section.project.text-hidden .bg-photo{ top: 0; bottom: 0; }
+  /* tall media (reels) on a wide screen: sit beside the text, using the full
+     height, instead of being squeezed into a thin strip */
+  @media (min-width: 1100px) and (min-aspect-ratio: 1/1){
+    section.project.is-portrait:not(.text-hidden) .bg-photo{ top: 72px; bottom: 90px; left: 54%; right: 5%; }
+    section.project.is-portrait.has-strip:not(.text-hidden) .bg-photo{ bottom: 200px; }
+    section.project.is-portrait:not(.text-hidden) .bg-scrim{ opacity: 0; }
+  }
+  .bg-photo.is-dragging{ transition: opacity .5s ease, top .5s ease, bottom .5s ease, left .5s ease, right .5s ease; }
   /* the swipe/drag gesture on the media is only active once the text is
      hidden (see JS) — cursor affordance matches that */
   section.project.text-hidden .bg-photo{ cursor: grab; }
@@ -543,6 +553,8 @@
     if(!m) return;
     const mw = m.naturalWidth || m.videoWidth, mh = m.naturalHeight || m.videoHeight;
     const bw = layer.clientWidth, bh = layer.clientHeight;
+    const sec = layer.closest('section.project');
+    if(sec && mw && mh) sec.classList.toggle('is-portrait', mw / mh < 0.85);
     if(!mw || !mh || !bw || !bh){ m.style.setProperty('--fit-zoom', 1); return; }
     const ma = mw / mh, ba = bw / bh;
     const coverZoom = Math.max(ma / ba, ba / ma); // zoom at which it would fill the box exactly
@@ -644,7 +656,7 @@
 
   PROJECTS.forEach((p, i) => {
     const section = document.createElement('section');
-    section.className = 'project';
+    section.className = 'project' + (p.media.length > 1 ? ' has-strip' : '');
     section.id = 'proj-' + i;
 
     const filmstripHtml = p.media.length > 1
