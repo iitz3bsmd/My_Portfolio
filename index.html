@@ -162,7 +162,11 @@
   .bg-layer-blur video{ object-fit: cover; }
   section.project.text-hidden .bg-layer-cover{ opacity: 0; }
   section.project.text-hidden .bg-layer-full{ opacity: 1; }
-  .filmstrip button{ position: relative; }
+  .filmstrip button{ position: relative; overflow:hidden; background-color:#111; }
+  .filmstrip button video{
+    position:absolute; inset:0; width:100%; height:100%;
+    object-fit:cover; pointer-events:none;
+  }
   .filmstrip .thumb-play{
     position:absolute; bottom:4px; right:4px;
     width:16px; height:16px; border-radius:50%;
@@ -176,25 +180,11 @@
   }
   .bg-scrim{
     position:absolute; inset:0;
-    background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 32%, transparent 42%, var(--scrim-mid) 62%, var(--scrim-bottom) 82%, var(--scrim-bottom) 100%);
+    background: linear-gradient(180deg, var(--scrim-top) 0%, transparent 30%, transparent 38%, rgba(0,0,0,0.7) 58%, var(--scrim-bottom) 80%, var(--scrim-bottom) 100%);
     pointer-events:none;
     opacity: 1;
     transition: opacity .4s ease;
   }
-  /* Extra focused darkening directly behind the title/description block,
-     layered above bg-scrim so text stays legible over busy photos */
-  .project-content::before{
-    content:"";
-    position:absolute;
-    left:0; right:0; bottom:-70px;
-    top:-140px;
-    background: linear-gradient(180deg, transparent 0px, rgba(0,0,0,0.55) 70px, rgba(0,0,0,0.85) 140px);
-    z-index:-1;
-    pointer-events:none;
-    opacity: 1;
-    transition: opacity .4s ease;
-  }
-
   .project-content{
     position:relative; z-index: 5;
     width: 100%;
@@ -204,30 +194,6 @@
     gap: 40px;
   }
   .project-text{ max-width: 620px; }
-  .click-hint{
-    position:absolute;
-    left:0; right:0; top:-24px;
-    transform: translateY(-100%);
-    text-align:center;
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.04em;
-    color: var(--text-muted);
-    opacity: 0.85;
-    transition: opacity .35s ease;
-  }
-  .click-hint::before{
-    content:"";
-    position:absolute;
-    left:50%; top:50%;
-    transform: translate(-50%,-50%);
-    width: 90px; height: 40px;
-    border-radius: 6px;
-    background: rgba(0,0,0,0.45);
-    filter: blur(6px);
-    z-index:-1;
-    pointer-events:none;
-  }
   .project-title{
     font-family: var(--font-display);
     font-style: normal;
@@ -333,19 +299,8 @@
     transform: translateY(28px);
     pointer-events: none;
   }
-  .click-hint{ pointer-events: none; }
-  section.project.text-hidden .click-hint{
-    opacity: 0;
-  }
-  section.project.hint-seen .click-hint{
-    opacity: 0;
-  }
-  body.hints-dismissed .click-hint{
-    opacity: 0;
-  }
-  /* both dark gradient layers fade out together with the text */
+  /* the dark gradient fades out together with the text */
   section.project.text-hidden .bg-scrim{ opacity: 0; }
-  section.project.text-hidden .project-content::before{ opacity: 0; }
   /* The text lines fade out but keep their layout box (so the animation can
      play), which on phone-width layouts can span most of the lower half of
      the screen. Without this, that invisible box still catches touches
@@ -491,7 +446,7 @@
       title: "CoTune Remote IoT Control Lab",
       desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, implemented on Quad-Rotor and Inverted Pendulum from scratch; with dynamic systems modeled in Simulink and control algorithms deployed to embedded hardware",
       meta: "AWS IoT · MATLAB · SOLIDWORKS · Embedded Systems · ESP32",
-      media: [ { type:'video', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/cotune/Reel2.mp4" }, { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182522.png?raw=true" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182700.png?raw=true" } ]
+      media: [ { type:'video', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/cotune/Reel.mp4" }, { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182522.png?raw=true" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182700.png?raw=true" } ]
     },
     {
       title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
@@ -647,7 +602,7 @@
       ? `<div class="filmstrip-row">
             <button class="fs-arrow fs-prev" aria-label="Scroll thumbnails left" disabled><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
             <div class="filmstrip">${p.media.map((m, mi) => `
-              <button data-proj="${i}" data-media="${mi}" style="background-image:${mediaBackground(m, mi)}" class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? '<span class="thumb-play"></span>' : ''}</button>
+              <button data-proj="${i}" data-media="${mi}" ${m.type==='image' ? `style="background-image:${mediaBackground(m, mi)}"` : ''} class="${mi===0 ? 'active':''}" aria-label="View ${m.type} ${mi+1} of ${p.title}">${m.type==='video' ? `<video muted playsinline preload="metadata" src="${m.src}#t=0.1"></video><span class="thumb-play"></span>` : ''}</button>
             `).join('')}</div>
             <button class="fs-arrow fs-next" aria-label="Scroll thumbnails right"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
           </div>`
@@ -663,7 +618,6 @@
       <div class="bg-scrim"></div>
       ${prevRow}
       <div class="project-content">
-        <span class="click-hint">click</span>
         <div class="project-text">
           <div class="project-title">${p.title}</div>
           <div class="project-desc">${p.desc}</div>
