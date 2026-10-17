@@ -124,9 +124,6 @@
   /* while actively dragging, the transform must follow the finger with zero
      lag — no eased transition — the eased transform transition above only
      kicks back in once the finger lifts (slide-out / snap-back / settle) */
-  /* project media sits in the band above the text; hiding the text lets it use the whole screen */
-  section.project .bg-photo{ top: 72px; bottom: 40%; }
-  section.project.text-hidden .bg-photo{ top: 0; bottom: 0; }
   .bg-photo.is-dragging{ transition: opacity .5s ease, top .5s ease, bottom .5s ease; }
   /* the swipe/drag gesture on the media is only active once the text is
      hidden (see JS) — cursor affordance matches that */
@@ -153,17 +150,23 @@
   }
   .bg-layer-media{
     z-index: 2;
-    display:flex; align-items:center; justify-content:center;
+    overflow: hidden;
+  }
+  /* The media is first fitted whole inside the screen (object-fit: contain,
+     scaled up or down as needed), then zoomed in a little by --fit-zoom
+     (computed in JS) so it fills more of the screen. The zoom is capped, so
+     media whose shape is very different from the screen is only cropped a
+     little, and the blurred copy behind fills whatever is left. */
+  .bg-layer-media img, .bg-layer-media video{
+    display:block;
+    width:100%; height:100%;
+    object-fit: contain;
+    transform: scale(var(--fit-zoom, 1));
+    transform-origin: center;
+    user-select:none; -webkit-user-select:none; -webkit-user-drag:none;
   }
   .bg-layer-media video{ opacity:0; transition: opacity .3s ease; }
   .bg-layer-media video.ready{ opacity:1; }
-  .bg-layer-media img, .bg-layer-media video{
-    display:block;
-    width:auto; height:auto;
-    max-width:100%; max-height:100%;
-    object-fit: contain;
-    user-select:none; -webkit-user-select:none; -webkit-user-drag:none;
-  }
   .filmstrip button{ position: relative; overflow:hidden; background-color:#111; }
   .filmstrip button video{
     position:absolute; inset:0; width:100%; height:100%;
@@ -448,7 +451,7 @@
       title: "CoTune Remote IoT Control Lab",
       desc: "A cloud-based platform for remote control of motion systems with real-time video stream and data feedback, implemented on Quad-Rotor and Inverted Pendulum from scratch; with dynamic systems modeled in Simulink and control algorithms deployed to embedded hardware",
       meta: "AWS IoT · MATLAB · SOLIDWORKS · Embedded Systems · ESP32",
-      media: [ { type:'video', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/cotune/Reel2.mp4" }, { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182522.png?raw=true" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182700.png?raw=true" } ]
+      media: [ { type:'video', src: "https://github.com/iitz3bsmd/My_Portfolio/raw/refs/heads/main/cotune/Reel.mp4" }, { type:'image', src: "https://raw.githubusercontent.com/iitz3bsmd/My_Portfolio/refs/heads/main/cotune/Screenshot%202026-08-30%20182632.png" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182522.png?raw=true" }, { type:'image', src: "https://github.com/iitz3bsmd/My_Portfolio/blob/main/cotune/Screenshot%202026-08-30%20182700.png?raw=true" } ]
     },
     {
       title: "Autonomous Production Line, powered by SCARA-inspired robotic arm",
@@ -529,6 +532,25 @@
     return photoGradient(item.type === 'video' ? 0 : item.hue, variant);
   }
 
+  // How far media may be zoomed past "fits whole on screen" to fill more of
+  // the screen. 1 = never crop (always fully visible), higher = fills more
+  // but crops more. Media shaped like the screen fills it completely; media
+  // shaped very differently is cropped by at most this much.
+  const MAX_ZOOM = 1.3;
+
+  function fitMedia(layer){
+    const m = layer.querySelector('img, video');
+    if(!m) return;
+    const mw = m.naturalWidth || m.videoWidth, mh = m.naturalHeight || m.videoHeight;
+    const bw = layer.clientWidth, bh = layer.clientHeight;
+    if(!mw || !mh || !bw || !bh){ m.style.setProperty('--fit-zoom', 1); return; }
+    const ma = mw / mh, ba = bw / bh;
+    const coverZoom = Math.max(ma / ba, ba / ma); // zoom at which it would fill the box exactly
+    m.style.setProperty('--fit-zoom', Math.min(coverZoom, MAX_ZOOM).toFixed(4));
+  }
+  // re-fit whenever a media box changes size (window resize, text shown/hidden)
+  const fitObserver = new ResizeObserver(entries => entries.forEach(e => fitMedia(e.target)));
+
   function renderBg(targetId, item, variant){
     const bg = document.getElementById(targetId);
     const mediaEl = bg.querySelector('.bg-layer-media');
@@ -556,6 +578,7 @@
         // fails to load, fall back to a plain dark background instead of
         // leaving an empty default-sized player box on screen
         const vid = mediaEl.querySelector('video');
+        vid.addEventListener('loadedmetadata', () => fitMedia(mediaEl));
         vid.addEventListener('loadeddata', () => vid.classList.add('ready'));
         vid.addEventListener('error', () => {
           vid.remove(); blurEl.innerHTML = '';
@@ -568,8 +591,12 @@
       blurEl.style.backgroundImage = mediaBackground(item, variant);
       if(item.src){
         mediaEl.innerHTML = `<img src="${item.src}" alt="${alt}" draggable="false">`;
+        const img = mediaEl.querySelector('img');
+        img.addEventListener('load', () => fitMedia(mediaEl));
+        if(img.complete) fitMedia(mediaEl);
       }
     }
+    fitObserver.observe(mediaEl);
   }
 
   // Switches a project to a given media index: crossfades the background,
