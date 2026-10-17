@@ -6,17 +6,20 @@
 <title>Abdussamad's Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg: #0B0B0B;
     --text: #F5F5F5;
-    --text-muted: rgba(245,245,245,0.65);
+    --text-muted: rgba(245,245,245,0.88);
     --accent: #F5F5F5;
+    --glow: #7CF5C8;
+    --glow-soft: rgba(124,245,200,0.14);
+    --glow-line: rgba(124,245,200,0.45);
     --scrim-top: rgba(0,0,0,0.15);
     --scrim-mid: rgba(0,0,0,0.6);
     --scrim-bottom: rgba(0,0,0,0.97);
-    --font-display: 'Inter', sans-serif;
+    --font-display: 'Space Grotesk', 'Inter', sans-serif;
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
@@ -215,32 +218,55 @@
     display:flex; align-items:flex-end; justify-content:space-between;
     gap: 40px;
   }
-  .project-text{ max-width: 620px; }
+  .project-text{ max-width: 760px; }
   .project-title{
     font-family: var(--font-display);
     font-style: normal;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-    font-size: clamp(28px, 3.6vw, 44px);
-    line-height: 1.08;
-    margin-bottom: 16px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    font-size: clamp(32px, 4.8vw, 62px);
+    line-height: 1.04;
+    margin-bottom: 18px;
+    color: #fff;
+    text-shadow: 0 2px 22px rgba(0,0,0,0.75);
+  }
+  .project-title::before{
+    content:""; display:block; width: 48px; height: 4px; border-radius: 2px;
+    background: var(--glow); margin-bottom: 16px;
   }
   .project-desc{
-    font-size: 15.5px; line-height:1.6; color: var(--text-muted);
-    max-width: 520px; margin-bottom: 18px;
+    font-size: clamp(16px, 1.45vw, 20px); line-height:1.6; font-weight: 400;
+    color: #fff;
+    max-width: 680px; margin-bottom: 22px;
+    text-shadow: 0 1px 12px rgba(0,0,0,0.85);
   }
   .project-meta{
-    font-family: var(--font-mono); font-size: 11.5px;
-    color: var(--text-muted); letter-spacing: 0.03em;
+    display:flex; flex-wrap:wrap; gap: 8px;
+    max-width: 560px;
   }
-  .project-link{
-    display:inline-block; margin-top: 12px;
-    font-family: var(--font-mono); font-size: 11.5px;
+  .chip{
+    font-family: var(--font-mono); font-size: 12px; font-weight: 500;
+    letter-spacing: 0.02em; color: #fff;
+    padding: 6px 12px; border-radius: 999px;
+    background: var(--glow-soft);
+    border: 1px solid var(--glow-line);
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  }
+  .link-btn{
+    display:inline-flex; align-items:center; gap: 10px;
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500;
     letter-spacing: 0.03em; text-decoration:none;
-    color: var(--text-muted); border-bottom: 1px solid transparent;
-    padding-bottom: 2px; transition: all .15s ease;
+    color: var(--text); background: rgba(245,245,245,0.08);
+    border: 1px solid rgba(245,245,245,0.45);
+    padding: 10px 18px; border-radius: 8px;
+    transition: all .2s ease;
   }
-  .project-link:hover{ color: var(--text); border-color: var(--accent); }
+  .link-btn svg{ width: 17px; height: 17px; fill: currentColor; flex-shrink:0; }
+  .link-btn svg.stroke{ fill:none; stroke: currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .link-btn:hover{ background: var(--text); color: var(--bg); border-color: var(--text); transform: translateY(-2px); }
+  .link-btn.primary{ background: var(--text); color: var(--bg); border-color: var(--text); }
+  .link-btn.primary:hover{ background: var(--glow); border-color: var(--glow); }
+  .project-link{ margin-top: 16px; }
 
   /* ---------- FILMSTRIP ---------- */
   .filmstrip-row{ display:flex; align-items:center; gap: 10px; flex-shrink: 0; max-width: min(360px, 40vw); }
@@ -362,9 +388,52 @@
   }
   .outro-label{ font-family: var(--font-mono); font-size: 12px; color: var(--accent); letter-spacing:0.06em; margin-bottom: 18px; }
   .outro h2{ font-family: var(--font-display); font-style:normal; font-weight:500; letter-spacing: -0.02em; font-size: clamp(26px,3.6vw,40px); max-width: 640px; margin-bottom: 26px; }
-  .outro-links{ display:flex; gap: 26px; font-family: var(--font-mono); font-size: 13.5px; }
-  .outro-links a{ text-decoration:none; color: var(--text-muted); border-bottom:1px solid transparent; padding-bottom:2px; transition: all .15s; }
-  .outro-links a:hover{ color: var(--text); border-color: var(--accent); }
+  .outro-links{ display:flex; flex-wrap:wrap; gap: 12px; }
+  .outro-label, .outro h2, .intro-slide h1, .intro-slide p, .intro-slide .eyebrow{ text-shadow: 0 2px 16px rgba(0,0,0,0.65); }
+  .outro-label{ color: var(--glow); font-weight:500; }
+  .intro-slide .eyebrow{ color: var(--glow); }
+  .intro-slide p{ color: rgba(255,255,255,0.92); }
+
+  /* ---------- SKILLS SLIDE ---------- */
+  .skills-slide{
+    position: relative; overflow:hidden;
+    height:100vh; height:100dvh; scroll-snap-align:start; scroll-snap-stop: always;
+    display:flex; flex-direction:column;
+    padding: 0 64px;
+    background:
+      radial-gradient(900px 500px at 85% 10%, rgba(124,245,200,0.10), transparent 60%),
+      radial-gradient(700px 500px at 5% 95%, rgba(124,245,200,0.06), transparent 60%),
+      var(--bg);
+  }
+  .skills-slide .slide-content{ width:100%; max-width: 1100px; margin: auto; padding: 24px 0; }
+  .skills-label{ font-family: var(--font-mono); font-size: 12px; color: var(--glow); letter-spacing:0.08em; margin-bottom: 14px; }
+  .skills-slide h2{ font-weight:600; letter-spacing:-0.02em; font-size: clamp(28px,4vw,46px); margin-bottom: 28px; color:#fff; }
+  .skills-grid{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .skill-card{
+    background: rgba(245,245,245,0.05);
+    border: 1px solid rgba(245,245,245,0.16);
+    border-radius: 14px; padding: 20px 20px 22px;
+    transition: border-color .2s ease, transform .2s ease, background .2s ease;
+  }
+  .skill-card:hover{ border-color: var(--glow-line); background: rgba(124,245,200,0.06); transform: translateY(-3px); }
+  .skill-card h3{
+    display:flex; align-items:center; gap: 10px;
+    font-size: 16px; font-weight:600; color:#fff; margin-bottom: 14px;
+  }
+  .skill-card h3 svg{ width: 20px; height: 20px; stroke: var(--glow); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+  .skill-card .chips{ display:flex; flex-wrap:wrap; gap: 8px; }
+  .skill-card .chip{ background: rgba(245,245,245,0.08); border-color: rgba(245,245,245,0.25); }
+  .skill-card .chip.hot{ background: var(--glow-soft); border-color: var(--glow-line); }
+  @media (max-width: 900px){
+    .skills-grid{ grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 780px){
+    .skills-slide{ padding: 0 20px; overflow-y:auto; }
+    .skills-grid{ grid-template-columns: 1fr; gap: 12px; }
+    .skill-card{ padding: 14px 16px 16px; }
+    .skill-card h3{ margin-bottom: 10px; }
+    .skills-slide h2{ margin-bottom: 18px; }
+  }
 
   /* ---------- INTRO / NAME SLIDE ---------- */
   .intro-slide{
@@ -374,13 +443,14 @@
     padding: 0 64px;
     background: var(--bg);
   }
-  .intro-slide .eyebrow{ font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); letter-spacing:0.08em; margin-bottom: 20px; }
+  .intro-slide .eyebrow{ font-family: var(--font-mono); font-size: clamp(14px, 1.3vw, 17px); font-weight: 500; color: var(--text-muted); letter-spacing:0.08em; margin-bottom: 22px; }
   .intro-slide h1{
-    font-family: var(--font-display); font-style: normal; font-weight: 500;
-    letter-spacing: -0.03em;
-    font-size: clamp(36px, 6vw, 68px); line-height: 1.02; margin-bottom: 24px;
+    font-family: var(--font-display); font-style: normal; font-weight: 700;
+    letter-spacing: -0.04em; color: #fff;
+    font-size: clamp(44px, 8.5vw, 112px); line-height: 0.98; margin-bottom: 28px;
+    max-width: 14ch;
   }
-  .intro-slide p{ font-size: 16px; color: var(--text-muted); max-width: 480px; line-height: 1.6; margin-bottom: 30px; }
+  .intro-slide p{ font-size: clamp(18px, 2vw, 26px); font-weight: 400; color: #fff; max-width: 640px; line-height: 1.5; margin-bottom: 30px; }
   .intro-slide .scroll-cue{ position:absolute; }
 
   /* background + readability scrim, shared by intro/outro slides */
@@ -432,6 +502,180 @@
     .scroll-cue{ animation:none; }
     .bg-photo{ transition:none; }
   }
+
+  /* =====================================================================
+     MODERN LAYER — glass panels, gradient name, pill buttons, entrances
+     ===================================================================== */
+  :root{ --ease-out: cubic-bezier(.22,.61,.36,1); }
+
+  /* ---- gradient name ---- */
+  .grad{
+    background: linear-gradient(100deg, #ffffff 0%, #ffffff 38%, var(--glow) 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent;
+    text-shadow: none;
+    filter: drop-shadow(0 4px 22px rgba(0,0,0,0.55));
+  }
+
+  /* ---- pill tags above the intro / outro headlines ---- */
+  .intro-slide .eyebrow, .outro-label{
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    text-shadow: none;
+  }
+  .intro-slide .eyebrow::before{
+    content: ""; width: 8px; height: 8px; border-radius: 50%;
+    background: var(--glow);
+    animation: pulse 2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(124,245,200,0.55); }
+    70%{ box-shadow: 0 0 0 10px rgba(124,245,200,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(124,245,200,0); }
+  }
+
+  /* ---- pill buttons ---- */
+  .contact-btn{
+    border-radius: 999px;
+    background: rgba(10,10,10,0.35);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  .cv-btn{ background: var(--text); }
+  .link-btn{
+    border-radius: 999px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* ---- rail: glowing active marker ---- */
+  .rail button.active:not(.rail-arrow){
+    background: var(--glow); border-color: var(--glow);
+    box-shadow: 0 0 12px rgba(124,245,200,0.55);
+  }
+
+  /* ---- project text lives on a frosted glass panel ---- */
+  .project-text{
+    padding: 30px 34px 32px;
+    background: linear-gradient(145deg, rgba(22,22,22,0.58), rgba(8,8,8,0.38));
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 26px;
+    backdrop-filter: blur(22px) saturate(140%); -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+    transition: background .4s ease, border-color .4s ease, box-shadow .4s ease;
+  }
+  /* when the text is hidden the panel dissolves with it */
+  section.project.text-hidden .project-text{
+    background: transparent; border-color: transparent; box-shadow: none;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  section.project.text-hidden .project-text > *{
+    opacity: 0; transform: translateY(28px); pointer-events: none;
+  }
+
+  .project-title{ font-size: clamp(30px, 4.2vw, 54px); }
+  .project-title::before{ display: none; }
+  .project-index{
+    font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+    letter-spacing: 0.14em; color: var(--glow); margin-bottom: 14px;
+  }
+  .project-index span{ color: rgba(255,255,255,0.5); }
+
+  /* ---- filmstrip thumbnails ---- */
+  .filmstrip button{ border-radius: 12px; }
+  .filmstrip button.active{ border-color: var(--glow); box-shadow: 0 0 0 3px rgba(124,245,200,0.18); }
+
+  /* ---- outro headline ---- */
+  .outro h2{
+    font-weight: 700; color: #fff; line-height: 1.05; letter-spacing: -0.03em;
+    font-size: clamp(30px, 4.6vw, 58px); max-width: 780px;
+  }
+
+  /* ---- skills: bolder heading, glass cards, icon tiles ---- */
+  .skills-slide h2{
+    font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em;
+    font-size: clamp(30px, 4.6vw, 56px);
+  }
+  .skill-card{
+    border-radius: 22px; padding: 22px 22px 24px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025));
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+  }
+  .skill-card:hover{
+    box-shadow: 0 18px 50px rgba(0,0,0,0.4), 0 0 0 1px var(--glow-line), 0 0 30px rgba(124,245,200,0.12);
+  }
+  .skill-card h3{ font-family: var(--font-display); font-size: 18px; letter-spacing: -0.01em; }
+  .skill-card h3 svg{
+    width: 38px; height: 38px; padding: 9px; border-radius: 12px;
+    background: var(--glow-soft); border: 1px solid var(--glow-line);
+  }
+  .skill-card .chip.hot{ box-shadow: 0 0 14px rgba(124,245,200,0.12); }
+
+  /* ---- staggered entrance (plays each time a slide comes into view) ----
+     Uses the separate `translate` property so it never fights with the
+     `transform` used for hover and hide effects. */
+  .project-text > *,
+  .intro-slide .slide-content > *,
+  .outro .slide-content > *,
+  .skills-slide .slide-content > :not(.skills-grid),
+  .skill-card{
+    --d: 0s;
+    transition: opacity .6s ease var(--d), translate .7s var(--ease-out) var(--d),
+                transform .4s ease, background .2s ease, color .2s ease,
+                border-color .2s ease, box-shadow .25s ease;
+  }
+  section.project:not(.in-view) .project-text > *,
+  .intro-slide:not(.in-view) .slide-content > *,
+  .outro:not(.in-view) .slide-content > *,
+  .skills-slide:not(.in-view) .slide-content > :not(.skills-grid),
+  .skills-slide:not(.in-view) .skill-card{
+    opacity: 0; translate: 0 30px;
+  }
+  section.project.in-view:not(.text-hidden) .project-text > :nth-child(1){ --d: .05s; }
+  section.project.in-view:not(.text-hidden) .project-text > :nth-child(2){ --d: .12s; }
+  section.project.in-view:not(.text-hidden) .project-text > :nth-child(3){ --d: .20s; }
+  section.project.in-view:not(.text-hidden) .project-text > :nth-child(4){ --d: .28s; }
+  section.project.in-view:not(.text-hidden) .project-text > :nth-child(5){ --d: .36s; }
+  .intro-slide.in-view .slide-content > :nth-child(1), .outro.in-view .slide-content > :nth-child(1){ --d: .10s; }
+  .intro-slide.in-view .slide-content > :nth-child(2), .outro.in-view .slide-content > :nth-child(2){ --d: .22s; }
+  .intro-slide.in-view .slide-content > :nth-child(3), .outro.in-view .slide-content > :nth-child(3){ --d: .36s; }
+  .skills-slide.in-view .slide-content > :nth-child(1){ --d: .05s; }
+  .skills-slide.in-view .slide-content > :nth-child(2){ --d: .12s; }
+  .skills-slide.in-view .skill-card:nth-child(1){ --d: .20s; }
+  .skills-slide.in-view .skill-card:nth-child(2){ --d: .27s; }
+  .skills-slide.in-view .skill-card:nth-child(3){ --d: .34s; }
+  .skills-slide.in-view .skill-card:nth-child(4){ --d: .41s; }
+  .skills-slide.in-view .skill-card:nth-child(5){ --d: .48s; }
+  .skills-slide.in-view .skill-card:nth-child(6){ --d: .55s; }
+
+  /* shorter laptop screens: keep the six skill cards on one screen */
+  @media (max-height: 760px) and (min-width: 781px){
+    .skills-slide h2{ margin-bottom: 18px; }
+    .skill-card{ padding: 16px 18px 18px; }
+    .skill-card h3{ margin-bottom: 10px; }
+    .skill-card h3 svg{ width: 32px; height: 32px; padding: 7px; }
+  }
+
+  /* phones: tighter glass panel so it doesn't swallow the media */
+  @media (max-width: 780px){
+    .project-text{ padding: 16px 18px 18px; border-radius: 20px; }
+    .project-title{ font-size: clamp(24px, 6.6vw, 28px); margin-bottom: 10px; }
+    .project-desc{ font-size: 15px; line-height: 1.5; margin-bottom: 14px; }
+    .project-index{ font-size: 12px; margin-bottom: 8px; }
+    .project-meta{ gap: 6px; }
+    .chip{ font-size: 11px; padding: 5px 10px; }
+    .project-link.link-btn{ margin-top: 12px; padding: 9px 14px; font-size: 12px; }
+    .skill-card h3 svg{ width: 30px; height: 30px; padding: 7px; }
+    .outro-links .link-btn{ font-size: 12px; padding: 9px 14px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .project-text > *, .slide-content > *, .skill-card{ transition: none !important; translate: none !important; }
+    .intro-slide .eyebrow::before{ animation: none; }
+  }
 </style>
 </head>
 <body>
@@ -453,13 +697,51 @@
     <div class="bg-scrim-slide"></div>
     <div class="slide-content">
       <div class="eyebrow">Hello there!</div>
-      <h1>I'm Abdussamad Mohammed</h1>
+      <h1>I'm <span class="grad">Abdussamad Mohammed</span></h1>
       <p>I design and build things for fun. If it can be built, I'm on it! <br> Here is some of my work.</p>
     </div>
     <div class="section-nav nav-bottom">
       <button class="nav-btn" data-nav="next" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
     </div>
     <div class="scroll-cue">Scroll</div>
+  </section>
+  <section class="skills-slide" id="skillsSection">
+    <div class="section-nav nav-top">
+      <button class="nav-btn" data-nav="prev" aria-label="Previous section"><svg viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg></button>
+    </div>
+    <div class="slide-content">
+      <div class="skills-label">// SKILLS &amp; TOOLS</div>
+      <h2>What I work with</h2>
+      <div class="skills-grid">
+        <div class="skill-card">
+          <h3><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>Embedded &amp; Hardware</h3>
+          <div class="chips"><span class="chip hot">ESP32</span><span class="chip hot">AVR</span><span class="chip">Raspberry Pi</span><span class="chip">C / C++</span><span class="chip">Embedded Systems</span><span class="chip">AWS IoT</span></div>
+        </div>
+        <div class="skill-card">
+          <h3><svg viewBox="0 0 24 24"><path d="M4 18V6l4 6 4-6 4 6 4-6v12"/></svg>PCB Design</h3>
+          <div class="chips"><span class="chip hot">Altium Designer</span><span class="chip hot">EasyEDA</span><span class="chip">JLCPCB</span><span class="chip">Schematic Capture</span><span class="chip">DFMA</span></div>
+        </div>
+        <div class="skill-card">
+          <h3><svg viewBox="0 0 24 24"><path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 22V12M3 7l9 5 9-5"/></svg>CAD &amp; Mechanical</h3>
+          <div class="chips"><span class="chip hot">SOLIDWORKS</span><span class="chip">3D Modeling</span><span class="chip">Mechanism Design</span></div>
+        </div>
+        <div class="skill-card">
+          <h3><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>Control &amp; Simulation</h3>
+          <div class="chips"><span class="chip hot">MATLAB</span><span class="chip hot">Simulink</span><span class="chip">Control Algorithms</span><span class="chip">System Modeling</span><span class="chip">Kalman Filter</span></div>
+        </div>
+        <div class="skill-card">
+          <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/></svg>AI &amp; Vision</h3>
+          <div class="chips"><span class="chip hot">Python</span><span class="chip hot">PyTorch</span><span class="chip">OpenCV</span><span class="chip">CNNs</span><span class="chip">Object Detection</span><span class="chip">Machine Vision</span></div>
+        </div>
+        <div class="skill-card">
+          <h3><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>Robotics &amp; Cloud</h3>
+          <div class="chips"><span class="chip hot">ROS</span><span class="chip">Gazebo</span><span class="chip">TurtleBot3</span><span class="chip">ZED Camera</span><span class="chip">AWS</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="section-nav nav-bottom">
+      <button class="nav-btn" data-nav="next" aria-label="Next section"><svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>
+    </div>
   </section>
   <section class="outro" id="outroSection">
     <div class="bg-photo" id="bg-outro"></div>
@@ -471,10 +753,10 @@
       <div class="outro-label">Well, This is the end. Or it could be the beginning!</div>
       <h2>If you like what I do, Don't hesitate to get in touch.</h2>
       <div class="outro-links">
-        <a href="Abdussamad_Mohammed_CV.pdf" download="Abdussamad_Mohammed_CV.pdf">Download CV</a>
-        <a href="mailto:AbdussamadMoh1@gmail.com">AbdussamadMoh1@gmail.com</a>
-        <a href="https://github.com/iitz3bsmd">GitHub</a>
-        <a href="https://www.linkedin.com/in/abdussamadmoh/">LinkedIn</a>
+        <a class="link-btn primary" href="Abdussamad_Mohammed_CV.pdf" download="Abdussamad_Mohammed_CV.pdf"><svg class="stroke" viewBox="0 0 24 24"><path d="M12 4v11M7 11l5 5 5-5M5 20h14"/></svg>Download CV</a>
+        <a class="link-btn" href="mailto:AbdussamadMoh1@gmail.com"><svg class="stroke" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>AbdussamadMoh1@gmail.com</a>
+        <a class="link-btn" href="https://github.com/iitz3bsmd" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 015.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.51 11.51 0 0023.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>GitHub</a>
+        <a class="link-btn" href="https://www.linkedin.com/in/abdussamadmoh/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.47-.9 1.63-1.85 3.36-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>LinkedIn</a>
       </div>
     </div>
   </section>
@@ -527,6 +809,7 @@
   const scroller = document.getElementById('scroller');
   const rail = document.getElementById('rail');
   const outroSection = document.getElementById('outroSection');
+  const skillsSection = document.getElementById('skillsSection');
   const introSlide = document.getElementById('introSlide');
   const dotMap = new Map(); // section id -> rail dot button
 
@@ -705,16 +988,17 @@
       ${prevRow}
       <div class="project-content">
         <div class="project-text">
+          <div class="project-index">${String(i+1).padStart(2,'0')} <span>/ ${String(PROJECTS.length).padStart(2,'0')}</span></div>
           <div class="project-title">${p.title}</div>
           <div class="project-desc">${p.desc}</div>
-          <div class="project-meta">${p.meta}</div>
-          ${p.link ? `<a class="project-link" href="${p.link}" target="_blank" rel="noopener">View on GitHub →</a>` : ''}
+          <div class="project-meta">${p.meta.split('·').map(s => `<span class="chip">${s.trim()}</span>`).join('')}</div>
+          ${p.link ? `<a class="project-link link-btn" href="${p.link}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.69 1.25 3.35.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 015.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.39-5.25 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.51 11.51 0 0023.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>View on GitHub<svg class="stroke" viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></a>` : ''}
         </div>
         ${filmstripHtml}
       </div>
       ${nextRow}
     `;
-    scroller.insertBefore(section, outroSection);
+    scroller.insertBefore(section, skillsSection);
     renderBg('bg-' + i, p.media[0], 0);
 
     const hasMultipleMedia = p.media.length > 1;
@@ -839,12 +1123,13 @@
     makeDot(section, p.title, false);
   });
 
+  makeDot(skillsSection, 'skills', false);
   divider();
   makeDot(outroSection, 'last section', 'bottom');
 
   // ---------- PREV / NEXT SECTION NAVIGATION ----------
   const allSections = Array.from(scroller.children).filter(el =>
-    el.classList.contains('intro-slide') || el.classList.contains('project') || el.classList.contains('outro')
+    el.classList.contains('intro-slide') || el.classList.contains('project') || el.classList.contains('skills-slide') || el.classList.contains('outro')
   );
 
   function scrollToSectionIndex(idx){
@@ -856,7 +1141,7 @@
     const navBtn = e.target.closest('.nav-btn');
     if(navBtn){
       if(navBtn.disabled) return;
-      const section = navBtn.closest('.intro-slide, section.project, .outro');
+      const section = navBtn.closest('.intro-slide, section.project, .skills-slide, .outro');
       const idx = allSections.indexOf(section);
       scrollToSectionIndex(navBtn.dataset.nav === 'prev' ? idx - 1 : idx + 1);
       return;
@@ -879,15 +1164,20 @@
         if(dot) dot.classList.add('active');
         const isEndSlide = entry.target === introSlide || entry.target === outroSection;
         rail.classList.toggle('rail-hidden', isEndSlide);
-      } else if(entry.target.classList.contains('project') && entry.target.classList.contains('text-hidden')){
-        // leaving a project while it's in "media view" — reset it back to
-        // text mode so it's always found showing text on return
-        entry.target.classList.remove('text-hidden');
+        entry.target.classList.add('in-view');
+      } else {
+        // leaving a slide: re-arm its entrance animation for next time
+        entry.target.classList.remove('in-view');
+        if(entry.target.classList.contains('project') && entry.target.classList.contains('text-hidden')){
+          // leaving a project while it's in "media view" — reset it back to
+          // text mode so it's always found showing text on return
+          entry.target.classList.remove('text-hidden');
+        }
       }
     });
   }, { threshold: 0.6 });
 
-  document.querySelectorAll('section.project, .intro-slide, .outro').forEach(s => observer.observe(s));
+  document.querySelectorAll('section.project, .intro-slide, .skills-slide, .outro').forEach(s => observer.observe(s));
 
   document.getElementById('contactBtn').addEventListener('click', () => {
     outroSection.scrollIntoView({ behavior: 'smooth' });
